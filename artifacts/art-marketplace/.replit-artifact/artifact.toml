@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Art Marketplace"
+description = "A premium multi-vendor art marketplace where independent artists build storefronts and customers discover, save, and purchase original art."
+version = "1.0.0"
+id = "artifacts/art-marketplace"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21569
+
+[services.development]
+run = "pnpm --filter @workspace/art-marketplace run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/art-marketplace", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/art-marketplace/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21569"
+BASE_PATH = "/"

@@ -1,0 +1,1050 @@
+Build a modern, premium, full-stack e-commerce marketplace for artists where independent artists can create their own stores and sell paintings, drawings, digital art, sculptures, photography, prints, and other artwork to customers.
+
+The platform should work like a multi-vendor art marketplace, with two completely different user roles:
+
+1. SELLER / ARTIST
+2. BUYER / CUSTOMER
+
+There should also be an ADMIN role for managing the entire platform.
+
+---
+
+# 1. DESIGN & BRANDING
+
+Create a premium, artistic, minimal and visually immersive design.
+
+Style:
+
+* Luxury art gallery aesthetic
+* Clean white/off-white background
+* Large artwork photography
+* Elegant typography
+* Lots of whitespace
+* Subtle animations
+* Smooth scrolling
+* Premium cards
+* Minimal borders
+* Soft shadows
+* Editorial-style layouts
+* Responsive on desktop, tablet and mobile
+
+The website should feel like a combination of:
+
+* Online art gallery
+* Luxury e-commerce store
+* Artist portfolio platform
+* Marketplace
+
+Avoid making it look like a generic Shopify store.
+
+Use artwork itself as the main visual focus.
+
+Suggested colors:
+
+* Ivory / warm white
+* Charcoal
+* Black
+* Beige
+* Subtle gold accent
+
+---
+
+# 2. LANDING PAGE
+
+Create a visually impressive homepage.
+
+Hero section:
+
+Headline:
+"Discover Art. Support Artists. Own Something Original."
+
+Subheading:
+"Explore original paintings, limited-edition prints, photography and contemporary art from independent artists around the world."
+
+Buttons:
+
+* Explore Artwork
+* Sell Your Art
+
+Hero should contain a large artistic artwork image with subtle animation.
+
+Sections:
+
+1. Featured Artwork
+2. Trending Artists
+3. Browse by Category
+4. New Arrivals
+5. Original Paintings
+6. Limited Edition Prints
+7. Meet the Artists
+8. How It Works
+9. Become an Artist
+10. Newsletter
+11. Footer
+
+---
+
+# 3. TWO DIFFERENT LOGIN OPTIONS
+
+The website must clearly provide two separate authentication paths.
+
+On the main authentication page show:
+
+"Welcome to the Art Marketplace"
+
+Two large cards:
+
+CARD 1:
+
+"Sell Your Art"
+
+"For artists who want to showcase and sell their artwork."
+
+Button:
+"Artist Login / Sign Up"
+
+CARD 2:
+
+"Shop Artwork"
+
+"For customers who want to discover and purchase art."
+
+Button:
+"Buyer Login / Sign Up"
+
+Do NOT mix the seller and buyer dashboards.
+
+After authentication, users should automatically be redirected to the correct dashboard based on their role.
+
+---
+
+# 4. ARTIST / SELLER AUTHENTICATION
+
+Create:
+
+/artist/login
+/artist/register
+
+Artist registration fields:
+
+* Full Name
+* Artist Name
+* Email
+* Password
+* Confirm Password
+* Country
+* Profile Image
+* Short Bio
+* Art Categories
+* Instagram / Website (optional)
+* Accept Terms
+
+After registration, create an artist profile/store automatically.
+
+Artist login should redirect to:
+
+/artist/dashboard
+
+---
+
+# 5. BUYER AUTHENTICATION
+
+Create:
+
+/buyer/login
+/buyer/register
+
+Buyer registration:
+
+* Full Name
+* Email
+* Password
+* Confirm Password
+* Phone Number
+* Country
+* Profile Image (optional)
+
+Buyer login should redirect to:
+
+/account
+
+---
+
+# 6. ARTIST DASHBOARD
+
+Create a professional seller dashboard.
+
+Dashboard sections:
+
+* Overview
+* My Artwork
+* Add Artwork
+* Orders
+* Sales
+* Earnings
+* Customers
+* Messages
+* Reviews
+* Artist Profile
+* Store Settings
+* Payment Settings
+* Shipping Settings
+* Logout
+
+Dashboard overview should display:
+
+* Total Sales
+* Total Orders
+* Total Earnings
+* Pending Orders
+* Published Artwork
+* Views
+* Favorites
+
+Include charts for:
+
+* Sales over time
+* Revenue
+* Best-selling artwork
+
+---
+
+# 7. ADD ARTWORK
+
+Create a powerful artwork upload system.
+
+Artist should be able to add:
+
+* Artwork title
+* Artwork description
+* Artwork images
+* Multiple images
+* Price
+* Category
+* Medium
+* Dimensions
+* Year created
+* Availability
+* Quantity
+* SKU
+* Tags
+* Shipping information
+* Estimated delivery time
+* Original / Print / Digital
+* Framed / Unframed
+* Featured artwork toggle
+
+Artwork status:
+
+* Draft
+* Pending Review
+* Published
+* Sold
+* Archived
+
+Allow image preview before publishing.
+
+Add drag-and-drop image upload.
+
+---
+
+# 8. ARTIST STORE PAGE
+
+Every artist should automatically get a public storefront.
+
+Example:
+
+/artist/artist-name
+
+Display:
+
+* Artist profile image
+* Artist name
+* Biography
+* Location
+* Social links
+* Follow button
+* Number of artworks
+* Number of followers
+* Artist rating
+
+Below that:
+
+"Artwork by [Artist Name]"
+
+Grid of their artwork.
+
+Filters:
+
+* Price
+* Category
+* Medium
+* Availability
+* Newest
+* Popular
+
+---
+
+# 9. ARTWORK DETAIL PAGE
+
+Create a premium product page.
+
+Large image gallery on the left.
+
+Information on the right:
+
+* Artwork title
+* Artist name
+* Price
+* Availability
+* Medium
+* Dimensions
+* Year
+* Description
+* Shipping information
+* Returns information
+
+Buttons:
+
+"Add to Cart"
+"Buy Now"
+"Add to Wishlist"
+
+Also include:
+
+* Share artwork
+* Follow artist
+* Ask the artist
+* Reviews
+
+Below:
+
+"More from this artist"
+
+"Similar Artwork"
+
+---
+
+# 10. BUYER DASHBOARD
+
+Create:
+
+/account
+
+Sections:
+
+* Overview
+* My Orders
+* Wishlist
+* Following Artists
+* Recently Viewed
+* Saved Addresses
+* Payment Methods
+* Profile Settings
+* Notifications
+* Logout
+
+Dashboard should show:
+
+Recent Orders
+Order Status
+Wishlist
+Followed Artists
+
+---
+
+# 11. SHOPPING CART
+
+Create a complete cart system.
+
+Cart should display:
+
+* Artwork image
+* Artwork title
+* Artist
+* Price
+* Quantity
+* Remove button
+* Save for later
+
+Order summary:
+
+Subtotal
+Shipping
+Tax
+Discount
+Total
+
+CTA:
+
+"Proceed to Checkout"
+
+---
+
+# 12. CHECKOUT
+
+Create a multi-step checkout:
+
+STEP 1:
+Customer information
+
+STEP 2:
+Shipping address
+
+STEP 3:
+Shipping method
+
+STEP 4:
+Payment
+
+STEP 5:
+Order confirmation
+
+Payment should be integrated using a secure payment provider.
+
+Do not store raw card information in the application's database.
+
+After successful payment:
+
+Create order.
+
+Reduce artwork inventory.
+
+Send confirmation.
+
+Show order number.
+
+---
+
+# 13. ORDER MANAGEMENT
+
+Buyer can see:
+
+Order ID
+Artwork
+Artist
+Price
+Shipping
+Order date
+Payment status
+Order status
+Tracking number
+
+Order statuses:
+
+* Pending
+* Confirmed
+* Processing
+* Shipped
+* Delivered
+* Cancelled
+* Refunded
+
+Artist can see orders containing their own artwork.
+
+---
+
+# 14. MARKETPLACE SEARCH
+
+Create powerful global search.
+
+Search by:
+
+* Artwork
+* Artist
+* Category
+* Medium
+* Style
+* Price
+* Location
+
+Search results should support filters:
+
+Price:
+
+* Under ₹5,000
+* ₹5,000–₹20,000
+* ₹20,000–₹50,000
+* ₹50,000+
+
+Category:
+
+* Painting
+* Drawing
+* Photography
+* Sculpture
+* Digital Art
+* Prints
+* Mixed Media
+
+Style:
+
+* Abstract
+* Contemporary
+* Minimalist
+* Realism
+* Modern
+* Traditional
+* Portrait
+* Landscape
+
+---
+
+# 15. CATEGORIES
+
+Create dedicated category pages:
+
+* Paintings
+* Drawings
+* Photography
+* Digital Art
+* Sculptures
+* Prints
+* Abstract Art
+* Contemporary Art
+* Traditional Art
+* Portraits
+* Landscapes
+
+Each category should have:
+
+Hero section
+Artwork grid
+Filters
+Sorting
+Pagination/infinite scrolling
+
+---
+
+# 16. WISHLIST
+
+Buyers can add artwork to wishlist.
+
+Wishlist page should show:
+
+Artwork image
+Title
+Artist
+Price
+Availability
+Remove button
+Add to Cart button
+
+---
+
+# 17. FOLLOW ARTISTS
+
+Buyers can follow artists.
+
+Artist profile should show:
+
+Followers
+Following button
+
+Buyer dashboard should have:
+
+"Artists You Follow"
+
+---
+
+# 18. REVIEWS & RATINGS
+
+After a successful purchase, buyers can review artwork.
+
+Review includes:
+
+* Star rating
+* Written review
+* Optional image
+
+Display reviews on artwork pages.
+
+Artist dashboard should show their ratings and reviews.
+
+---
+
+# 19. ARTIST MESSAGING
+
+Allow buyers to contact artists.
+
+Create simple messaging system.
+
+Buyer can ask:
+
+"Is this artwork available?"
+"Can you customize this?"
+"What are the dimensions?"
+"Can you ship internationally?"
+
+Artist can respond from their dashboard.
+
+---
+
+# 20. ADMIN PANEL
+
+Create a separate admin dashboard.
+
+Admin login:
+
+/admin/login
+
+Admin dashboard:
+
+* Total Users
+* Total Artists
+* Total Buyers
+* Total Artwork
+* Total Orders
+* Total Revenue
+* Pending Artwork
+* Reported Content
+
+Admin sections:
+
+Users
+Artists
+Buyers
+Artwork
+Orders
+Payments
+Categories
+Reviews
+Reports
+Payouts
+Settings
+
+Admin should be able to:
+
+* Approve/reject artists
+* Approve/reject artwork
+* Edit artwork
+* Remove artwork
+* Suspend users
+* Manage categories
+* Manage orders
+* Manage commissions
+* View sales
+* Handle reports
+
+---
+
+# 21. MARKETPLACE COMMISSION SYSTEM
+
+Implement a marketplace commission system.
+
+Example:
+
+Artwork price = ₹10,000
+
+Platform commission = 10%
+
+Artist receives = ₹9,000
+
+Admin dashboard should show:
+
+Gross sales
+Platform commission
+Artist earnings
+Pending payouts
+Completed payouts
+
+Make the commission percentage configurable from admin settings.
+
+---
+
+# 22. ARTIST PAYOUT SYSTEM
+
+Artist dashboard should display:
+
+Available balance
+Pending balance
+Total earnings
+Total withdrawn
+
+Create payout history:
+
+Date
+Amount
+Status
+Transaction ID
+
+Payment/payout architecture should be designed so that artists can eventually connect a supported payout account.
+
+---
+
+# 23. NOTIFICATIONS
+
+Create notification system.
+
+Buyer notifications:
+
+* Order confirmed
+* Order shipped
+* Order delivered
+* New message
+* Wishlist item update
+
+Artist notifications:
+
+* New order
+* Artwork approved
+* Artwork rejected
+* New message
+* New review
+* Payout completed
+
+---
+
+# 24. DATABASE
+
+Use a relational database such as PostgreSQL.
+
+Suggested entities:
+
+User
+ArtistProfile
+BuyerProfile
+Artwork
+ArtworkImage
+Category
+Cart
+CartItem
+Wishlist
+Order
+OrderItem
+Payment
+ArtistPayout
+Review
+Message
+Conversation
+Notification
+Follow
+Address
+Admin
+
+Important relationships:
+
+User → Role
+
+Role:
+
+* BUYER
+* ARTIST
+* ADMIN
+
+Artist → Artwork
+
+Buyer → Orders
+
+Order → OrderItems
+
+OrderItem → Artwork
+
+Artwork → Artist
+
+Buyer → Wishlist
+
+Buyer → Following Artists
+
+---
+
+# 25. AUTHENTICATION & SECURITY
+
+Implement secure authentication.
+
+Requirements:
+
+* Email/password authentication
+* Password hashing
+* JWT or secure session authentication
+* Role-based authorization
+* Protected seller routes
+* Protected buyer routes
+* Protected admin routes
+* Input validation
+* API authorization
+* Secure file uploads
+* Rate limiting
+* Prevent unauthorized artwork modification
+* Prevent buyers from accessing seller dashboard
+* Prevent sellers from accessing admin functionality
+
+Never rely only on frontend role checks.
+
+Authorization must also be enforced on the backend.
+
+---
+
+# 26. IMAGE STORAGE
+
+Artwork images should NOT be stored directly inside the database.
+
+Use cloud object storage such as:
+
+Cloudinary
+AWS S3
+Supabase Storage
+
+Store only image URLs and metadata in the database.
+
+Support:
+
+* Multiple artwork images
+* Image compression
+* Thumbnail generation
+* Responsive images
+
+---
+
+# 27. API STRUCTURE
+
+Create a clean REST API.
+
+Example:
+
+POST /api/auth/artist/register
+POST /api/auth/artist/login
+
+POST /api/auth/buyer/register
+POST /api/auth/buyer/login
+
+GET /api/artworks
+GET /api/artworks/:id
+POST /api/artworks
+PUT /api/artworks/:id
+DELETE /api/artworks/:id
+
+GET /api/artists
+GET /api/artists/:id
+
+GET /api/cart
+POST /api/cart/items
+DELETE /api/cart/items/:id
+
+POST /api/orders
+GET /api/orders
+GET /api/orders/:id
+
+POST /api/reviews
+
+POST /api/wishlist
+
+POST /api/follow
+
+GET /api/artist/dashboard
+GET /api/artist/sales
+GET /api/artist/earnings
+
+GET /api/admin/dashboard
+
+---
+
+# 28. RESPONSIVE DESIGN
+
+The website must be fully responsive.
+
+Desktop:
+
+* Large artwork grids
+* Sidebar filters
+* Dashboard sidebar
+
+Tablet:
+
+* Responsive grids
+
+Mobile:
+
+* Bottom navigation where appropriate
+* Hamburger menu
+* 1–2 column artwork grid
+* Mobile-friendly checkout
+* Mobile-friendly seller dashboard
+
+---
+
+# 29. TECH STACK
+
+Use:
+
+Frontend:
+React
+TypeScript
+Next.js
+Tailwind CSS
+
+UI:
+shadcn/ui
+Lucide Icons
+
+Animations:
+Framer Motion
+
+Backend:
+Node.js
+Express.js
+
+Database:
+PostgreSQL
+Prisma ORM
+
+Authentication:
+JWT or secure session-based authentication
+
+Storage:
+Cloudinary or S3
+
+Payments:
+Stripe for international payments
+Razorpay for Indian payments if required
+
+Deployment:
+Frontend → Vercel
+Backend → Render/Railway
+Database → PostgreSQL provider
+
+---
+
+# 30. IMPORTANT UX REQUIREMENTS
+
+Do not make this look like a dashboard-heavy SaaS product.
+
+The customer-facing website should feel like a premium art gallery.
+
+Prioritize:
+
+1. Artwork photography
+2. Artist storytelling
+3. Discovery
+4. Trust
+5. Easy checkout
+6. Premium visual design
+
+Use smooth hover effects.
+
+Example artwork card:
+
+Image
+↓
+Artwork title
+Artist name
+Price
+♡ Wishlist
+
+On hover:
+Show "View Artwork"
+
+---
+
+# 31. HOMEPAGE COPY
+
+Hero:
+
+"Art That Speaks.
+Artists Worth Discovering."
+
+Subtitle:
+
+"Discover original artwork from independent artists and bring something extraordinary into your space."
+
+CTA:
+
+"Explore Artwork"
+
+Secondary CTA:
+
+"Become an Artist"
+
+Section:
+
+"Originals. Prints. Stories."
+
+Text:
+
+"Every piece has a story. Discover artwork created by artists from around the world and support the people behind the art."
+
+---
+
+# 32. IMPORTANT BUSINESS LOGIC
+
+The system must distinguish clearly between:
+
+BUYER:
+
+* Browse artwork
+* Search
+* Wishlist
+* Follow artists
+* Add to cart
+* Purchase
+* Track orders
+* Review artwork
+* Message artists
+
+ARTIST:
+
+* Create profile
+* Create storefront
+* Upload artwork
+* Manage inventory
+* Manage orders
+* View sales
+* View earnings
+* Respond to customers
+* Manage profile
+
+ADMIN:
+
+* Manage everything
+* Approve artists
+* Approve artwork
+* Manage users
+* Manage orders
+* Manage commission
+* Manage payouts
+* Manage categories
+* Manage reports
+
+---
+
+# 33. DEVELOPMENT APPROACH
+
+Build the application as a real full-stack production-ready application.
+
+Do NOT create a static frontend mockup.
+
+All major features should be connected to the backend and database.
+
+Do not use fake hardcoded data for:
+
+* Authentication
+* Products
+* Orders
+* Cart
+* Wishlist
+* Artist dashboard
+* Sales
+* Earnings
+
+Create proper database models, API routes and frontend state management.
+
+Seed the database with realistic demo artists and artwork so the UI can be tested immediately.
+
+Create a clean folder structure and reusable components.
+
+Include:
+
+* Environment variables
+* Database migrations
+* Seed script
+* API error handling
+* Loading states
+* Empty states
+* Form validation
+* Toast notifications
+* Error pages
+* 404 page
+* Authentication guards
+* Role-based route protection
+
+The final result should feel like a real startup-level online art marketplace rather than a simple portfolio website.
