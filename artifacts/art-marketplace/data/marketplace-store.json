@@ -1,0 +1,591 @@
+{
+  "users": [
+    {
+      "id": "usr_forma_collector",
+      "role": "buyer",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "usr_mira_sen",
+      "role": "artist",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": "usr_admin_curator",
+      "role": "admin",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "buyerProfiles": [
+    {
+      "id": 1,
+      "userId": "usr_forma_collector",
+      "displayName": "Elena Rostova",
+      "bio": "Contemporary collector focusing on textured oils and ceramics.",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "artistProfiles": [
+    {
+      "id": 1,
+      "userId": "usr_mira_sen",
+      "displayName": "Mira Sen",
+      "slug": "mira-sen",
+      "location": "Jaipur, India",
+      "biography": "Mira's paintings find quiet movement in the colors and textures of everyday life. Her studio practice moves between memory, landscape, and the changing light of home.",
+      "imageUrl": "/artwork/after-the-rain.jpg",
+      "website": "https://mirasenstudio.com",
+      "rating": 4.9,
+      "views": 1250,
+      "createdAt": "2025-01-10T10:00:00Z",
+      "updatedAt": "2025-01-10T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "userId": "seed_artist_eli",
+      "displayName": "Eli Navarro",
+      "slug": "eli-navarro",
+      "location": "Lisbon, Portugal",
+      "biography": "Working across painting and mixed media, Eli builds layered compositions from walks, found color, and the imperfect geometry of the city.",
+      "imageUrl": "/artwork/blue-hour.jpg",
+      "website": "https://elinavarro.art",
+      "rating": 4.8,
+      "views": 940,
+      "createdAt": "2025-01-12T10:00:00Z",
+      "updatedAt": "2025-01-12T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "userId": "seed_artist_aya",
+      "displayName": "Aya Mori",
+      "slug": "aya-mori",
+      "location": "Kyoto, Japan",
+      "biography": "Aya makes tactile forms shaped by patient observation. Her work draws on botanical silhouettes and the spaces between objects.",
+      "imageUrl": "/artwork/citrus-study.jpg",
+      "website": "https://ayamori-ceramics.jp",
+      "rating": 5,
+      "views": 1820,
+      "createdAt": "2025-01-14T10:00:00Z",
+      "updatedAt": "2025-01-14T10:00:00Z"
+    },
+    {
+      "id": 4,
+      "userId": "seed_artist_noah",
+      "displayName": "Noah Bell",
+      "slug": "noah-bell",
+      "location": "Brooklyn, United States",
+      "biography": "Noah's photographs and paper works pay attention to small, overlooked moments: a window left open, a garden after rain, a room at rest.",
+      "imageUrl": "/artwork/quiet-room.jpg",
+      "website": "https://noahbellphoto.com",
+      "rating": 4.7,
+      "views": 890,
+      "createdAt": "2025-01-16T10:00:00Z",
+      "updatedAt": "2025-01-16T10:00:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Painting",
+      "slug": "painting",
+      "description": "Original oils, gouache, and acrylic compositions",
+      "imageUrl": "/artwork/after-the-rain.jpg",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Sculpture",
+      "slug": "sculpture",
+      "description": "Hand-built ceramic forms, vessels, and tactile stoneware",
+      "imageUrl": "/artwork/tidal-form.jpg",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Photography",
+      "slug": "photography",
+      "description": "Limited-edition archival pigment prints and fine art studies",
+      "imageUrl": "/artwork/quiet-room.jpg",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    },
+    {
+      "id": 4,
+      "name": "Prints",
+      "slug": "prints",
+      "description": "Hand-signed lithographs, screenprints, and mixed editions",
+      "imageUrl": "/artwork/soft-architecture.jpg",
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z"
+    }
+  ],
+  "artworks": [
+    {
+      "id": 9,
+      "artistId": 1,
+      "title": "Spring Reverie",
+      "slug": "spring-reverie-5981",
+      "description": "",
+      "price": 450,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Oil on linen",
+      "dimensions": "50 × 60 cm",
+      "yearCreated": 2026,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/after-the-rain.jpg"
+      ],
+      "artworkType": "original",
+      "featured": false,
+      "quantity": 1,
+      "views": 1,
+      "createdAt": "2026-10-05T14:11:25.981Z",
+      "updatedAt": "2026-10-05T14:11:25.981Z"
+    },
+    {
+      "id": 1,
+      "artistId": 1,
+      "title": "After the Rain",
+      "slug": "after-the-rain",
+      "description": "Soft greens and washed blues settle into the last light of a summer storm.",
+      "price": 560,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Oil and cold wax on linen",
+      "dimensions": "60 × 80 cm",
+      "yearCreated": 2025,
+      "status": "sold",
+      "imageUrls": [
+        "/artwork/after-the-rain.jpg"
+      ],
+      "artworkType": "original",
+      "featured": true,
+      "quantity": 0,
+      "views": 314,
+      "createdAt": "2025-01-20T10:00:00Z",
+      "updatedAt": "2025-01-20T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "artistId": 2,
+      "title": "Blue Hour No. 4",
+      "slug": "blue-hour-no-4",
+      "description": "A study of evening light, built up in translucent layers of pigment.",
+      "price": 420,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Acrylic and graphite on canvas",
+      "dimensions": "50 × 70 cm",
+      "yearCreated": 2025,
+      "status": "sold",
+      "imageUrls": [
+        "/artwork/blue-hour.jpg"
+      ],
+      "artworkType": "original",
+      "featured": true,
+      "quantity": 0,
+      "views": 245,
+      "createdAt": "2025-01-22T10:00:00Z",
+      "updatedAt": "2025-01-22T10:00:00Z"
+    },
+    {
+      "id": 3,
+      "artistId": 3,
+      "title": "Citrus Study",
+      "slug": "citrus-study",
+      "description": "A bright, measured arrangement of fruit, paper, and shifting shadows.",
+      "price": 320,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Gouache on cotton paper",
+      "dimensions": "30 × 42 cm",
+      "yearCreated": 2024,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/citrus-study.jpg"
+      ],
+      "artworkType": "original",
+      "featured": false,
+      "quantity": 1,
+      "views": 180,
+      "createdAt": "2025-01-23T10:00:00Z",
+      "updatedAt": "2025-01-23T10:00:00Z"
+    },
+    {
+      "id": 4,
+      "artistId": 3,
+      "title": "Tidal Form",
+      "slug": "tidal-form",
+      "description": "A hand-built ceramic form with an irregular, salt-like glaze.",
+      "price": 720,
+      "currency": "USD",
+      "category": "Sculpture",
+      "medium": "Stoneware with satin glaze",
+      "dimensions": "24 × 18 × 15 cm",
+      "yearCreated": 2025,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/tidal-form.jpg"
+      ],
+      "artworkType": "original",
+      "featured": true,
+      "quantity": 1,
+      "views": 421,
+      "createdAt": "2025-01-24T10:00:00Z",
+      "updatedAt": "2025-01-24T10:00:00Z"
+    },
+    {
+      "id": 5,
+      "artistId": 4,
+      "title": "Quiet Room",
+      "slug": "quiet-room",
+      "description": "A calm interior, photographed in the spare light of early morning.",
+      "price": 280,
+      "currency": "USD",
+      "category": "Photography",
+      "medium": "Archival pigment print",
+      "dimensions": "40 × 50 cm",
+      "yearCreated": 2024,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/quiet-room.jpg"
+      ],
+      "artworkType": "print",
+      "featured": false,
+      "quantity": 25,
+      "views": 195,
+      "createdAt": "2025-01-25T10:00:00Z",
+      "updatedAt": "2025-01-25T10:00:00Z"
+    },
+    {
+      "id": 6,
+      "artistId": 2,
+      "title": "Soft Architecture",
+      "slug": "soft-architecture",
+      "description": "Rounded planes and hand-drawn edges turn a city block into a memory.",
+      "price": 480,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Oil and pastel on panel",
+      "dimensions": "45 × 60 cm",
+      "yearCreated": 2025,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/soft-architecture.jpg"
+      ],
+      "artworkType": "original",
+      "featured": false,
+      "quantity": 1,
+      "views": 210,
+      "createdAt": "2025-01-26T10:00:00Z",
+      "updatedAt": "2025-01-26T10:00:00Z"
+    },
+    {
+      "id": 7,
+      "artistId": 1,
+      "title": "Wild Garden",
+      "slug": "wild-garden",
+      "description": "An expressive garden scene, alive with color and loose, layered brushwork.",
+      "price": 640,
+      "currency": "USD",
+      "category": "Painting",
+      "medium": "Oil on linen",
+      "dimensions": "70 × 90 cm",
+      "yearCreated": 2025,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/wild-garden.jpg"
+      ],
+      "artworkType": "original",
+      "featured": true,
+      "quantity": 1,
+      "views": 390,
+      "createdAt": "2025-01-27T10:00:00Z",
+      "updatedAt": "2025-01-27T10:00:00Z"
+    },
+    {
+      "id": 8,
+      "artistId": 3,
+      "title": "Folded Vessel",
+      "slug": "folded-vessel",
+      "description": "A sculptural paper study translated into a small, tactile ceramic vessel.",
+      "price": 350,
+      "currency": "USD",
+      "category": "Sculpture",
+      "medium": "Hand-built porcelain",
+      "dimensions": "19 × 16 × 13 cm",
+      "yearCreated": 2024,
+      "status": "published",
+      "imageUrls": [
+        "/artwork/folded-vessel.jpg"
+      ],
+      "artworkType": "original",
+      "featured": false,
+      "quantity": 1,
+      "views": 270,
+      "createdAt": "2025-01-28T10:00:00Z",
+      "updatedAt": "2025-01-28T10:00:00Z"
+    }
+  ],
+  "cartItems": [],
+  "wishlist": [],
+  "follows": [
+    {
+      "id": 1,
+      "userId": "usr_forma_collector",
+      "artistId": 1,
+      "createdAt": "2025-02-01T00:00:00Z"
+    },
+    {
+      "id": 2,
+      "userId": "usr_forma_collector",
+      "artistId": 3,
+      "createdAt": "2025-02-02T00:00:00Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": 1002,
+      "userId": "usr_forma_collector",
+      "stripeSessionId": "cs_test_1791209503807",
+      "status": "confirmed",
+      "paymentStatus": "paid",
+      "subtotal": 1540,
+      "shipping": 0,
+      "tax": 0,
+      "total": 1540,
+      "currency": "USD",
+      "fullName": "Elena Rostova",
+      "email": "elena@forma.gallery",
+      "address1": "450 West 24th St",
+      "address2": "Apt 8B",
+      "city": "New York",
+      "region": "NY",
+      "postalCode": "10011",
+      "country": "USA",
+      "createdAt": "2026-10-05T14:11:43.808Z",
+      "updatedAt": "2026-10-05T14:11:43.808Z",
+      "items": [
+        {
+          "id": 2,
+          "orderId": 1002,
+          "artworkId": 1,
+          "artistId": 1,
+          "title": "After the Rain",
+          "quantity": 2,
+          "unitPrice": 560,
+          "commissionRate": 12.5,
+          "commissionAmount": 140,
+          "artistAmount": 980
+        },
+        {
+          "id": 3,
+          "orderId": 1002,
+          "artworkId": 2,
+          "artistId": 2,
+          "title": "Blue Hour No. 4",
+          "quantity": 1,
+          "unitPrice": 420,
+          "commissionRate": 12.5,
+          "commissionAmount": 52.5,
+          "artistAmount": 367.5
+        }
+      ]
+    },
+    {
+      "id": 1001,
+      "userId": "usr_forma_collector",
+      "status": "delivered",
+      "paymentStatus": "paid",
+      "subtotal": 560,
+      "shipping": 0,
+      "tax": 0,
+      "total": 560,
+      "currency": "USD",
+      "fullName": "Elena Rostova",
+      "email": "elena@forma.gallery",
+      "phone": "+1 (555) 234-8901",
+      "address1": "450 West 24th Street",
+      "address2": "Apt 8B",
+      "city": "New York",
+      "region": "NY",
+      "postalCode": "10011",
+      "country": "United States",
+      "createdAt": "2025-02-01T12:00:00Z",
+      "updatedAt": "2025-02-05T16:00:00Z"
+    }
+  ],
+  "orderItems": [
+    {
+      "id": 1,
+      "orderId": 1001,
+      "artworkId": 1,
+      "artistId": 1,
+      "title": "After the Rain",
+      "quantity": 1,
+      "unitPrice": 560,
+      "commissionRate": 10,
+      "commissionAmount": 56,
+      "artistAmount": 504
+    },
+    {
+      "id": 2,
+      "orderId": 1002,
+      "artworkId": 1,
+      "artistId": 1,
+      "title": "After the Rain",
+      "quantity": 2,
+      "unitPrice": 560,
+      "commissionRate": 12.5,
+      "commissionAmount": 140,
+      "artistAmount": 980
+    },
+    {
+      "id": 3,
+      "orderId": 1002,
+      "artworkId": 2,
+      "artistId": 2,
+      "title": "Blue Hour No. 4",
+      "quantity": 1,
+      "unitPrice": 420,
+      "commissionRate": 12.5,
+      "commissionAmount": 52.5,
+      "artistAmount": 367.5
+    }
+  ],
+  "payments": [
+    {
+      "id": 1,
+      "orderId": 1001,
+      "amount": 560,
+      "currency": "USD",
+      "status": "succeeded",
+      "paymentMethod": "card",
+      "createdAt": "2025-02-01T12:01:00Z"
+    },
+    {
+      "id": 2,
+      "orderId": 1002,
+      "amount": 1540,
+      "currency": "USD",
+      "status": "succeeded",
+      "paymentMethod": "card",
+      "createdAt": "2026-10-05T14:11:43.808Z"
+    }
+  ],
+  "payouts": [
+    {
+      "id": 1,
+      "artistId": 1,
+      "orderId": 1001,
+      "amount": 504,
+      "currency": "USD",
+      "status": "paid",
+      "payoutDate": "2025-02-07T10:00:00Z",
+      "referenceNumber": "PO-2025-001",
+      "notes": "Payout for Order #1001 (After the Rain) less 10% platform commission",
+      "createdAt": "2025-02-06T10:00:00Z",
+      "updatedAt": "2025-02-07T10:00:00Z"
+    },
+    {
+      "id": 2,
+      "artistId": 1,
+      "orderId": 1002,
+      "amount": 980,
+      "currency": "USD",
+      "status": "pending",
+      "notes": "Earnings from Order #1002 for \"After the Rain\" (87.5% share)",
+      "createdAt": "2026-10-05T14:11:43.808Z",
+      "updatedAt": "2026-10-05T14:11:43.808Z"
+    },
+    {
+      "id": 3,
+      "artistId": 2,
+      "orderId": 1002,
+      "amount": 367.5,
+      "currency": "USD",
+      "status": "pending",
+      "notes": "Earnings from Order #1002 for \"Blue Hour No. 4\" (87.5% share)",
+      "createdAt": "2026-10-05T14:11:43.808Z",
+      "updatedAt": "2026-10-05T14:11:43.808Z"
+    }
+  ],
+  "settings": {
+    "commissionRate": 12.5,
+    "currency": "USD",
+    "autoApproveArtworks": false,
+    "minPayoutAmount": 50,
+    "updatedAt": "2026-10-05T14:11:37.010Z"
+  },
+  "reviews": [
+    {
+      "id": 1,
+      "artworkId": 1,
+      "artistId": 1,
+      "userId": "usr_forma_collector",
+      "rating": 5,
+      "title": "Exquisite brushwork and depth",
+      "comment": "Arrived impeccably crated and framed. The texture in person is even more mesmerizing than photographed.",
+      "verifiedPurchase": true,
+      "createdAt": "2025-02-01T14:30:00Z"
+    },
+    {
+      "id": 2,
+      "artworkId": 4,
+      "artistId": 3,
+      "userId": "usr_forma_collector",
+      "rating": 5,
+      "title": "Stunning ceramic centerpiece",
+      "comment": "The salt glaze is tactile and delicate. A true museum-worthy piece.",
+      "verifiedPurchase": true,
+      "createdAt": "2025-02-15T09:15:00Z"
+    }
+  ],
+  "conversations": [
+    {
+      "id": 1,
+      "buyerId": "usr_forma_collector",
+      "artistId": 1,
+      "artworkId": 1,
+      "lastMessageAt": "2025-02-01T11:45:00Z",
+      "createdAt": "2025-02-01T11:00:00Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "conversationId": 1,
+      "senderId": "usr_forma_collector",
+      "content": "Hi Mira, could you tell me if After the Rain is ready to hang?",
+      "isRead": true,
+      "createdAt": "2025-02-01T11:00:00Z"
+    },
+    {
+      "id": 2,
+      "conversationId": 1,
+      "senderId": "usr_mira_sen",
+      "content": "Hello Elena! Yes, it is fitted with heavy-gauge hanging wire and ships in a custom wooden crate.",
+      "isRead": true,
+      "createdAt": "2025-02-01T11:45:00Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": "usr_forma_collector",
+      "type": "order_update",
+      "title": "Order Delivered",
+      "message": "Your order #1001 \"After the Rain\" was delivered.",
+      "link": "/account",
+      "isRead": true,
+      "createdAt": "2025-02-05T16:00:00Z"
+    }
+  ]
+}

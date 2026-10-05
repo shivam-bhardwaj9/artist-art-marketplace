@@ -1,0 +1,9 @@
+{
+  "name": "Forma Art Marketplace",
+  "description": "A modern premium marketplace for independent artists to showcase and sell original paintings, sculptures, photography, and prints.",
+  "prompt": "Build a modern, premium, full-stack e-commerce marketplace for artists where independent artists can create their own stores and sell paintings, drawings, digital art, sculptures, photography, prints, and other artwork to customers.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

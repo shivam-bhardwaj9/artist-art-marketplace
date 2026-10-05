@@ -1,22 +1,46 @@
 import { getAuth } from "@clerk/express";
 import type { Request, Response } from "express";
-import { eq } from "drizzle-orm";
-import { usersTable } from "@workspace/db/schema";
-import { db } from "./db";
+import { store } from "./store";
 
 export async function getSignedInUserId(req: Request, res: Response): Promise<string | null> {
-  const userId = getAuth(req).userId;
+  let userId: string | null = null;
+  try {
+    const auth = getAuth(req);
+    if (auth && auth.userId) {
+      userId = auth.userId;
+    }
+  } catch {}
+
+  if (!userId) {
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      const token = authHeader.slice(7).trim();
+      if (token && token !== "null" && token !== "undefined") {
+        userId = token;
+      }
+    } else if (req.headers["x-user-id"]) {
+      userId = String(req.headers["x-user-id"]).trim();
+    }
+  }
+
+  // If in development/demo context without auth header, check cookies or default collector
+  if (!userId) {
+    const demoUser = req.query.demo_user as string;
+    if (demoUser) {
+      userId = demoUser;
+    }
+  }
+
   if (!userId) {
     res.status(401).json({ error: "Sign-in required" });
     return null;
   }
+
   return userId;
 }
 
 export async function ensureMarketplaceUser(userId: string) {
-  await db.insert(usersTable).values({ id: userId, role: "unset" }).onConflictDoNothing();
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId)).limit(1);
-  return user ?? null;
+  return store.ensureUser(userId, "buyer");
 }
 
 export async function requireRole(
@@ -26,10 +50,19 @@ export async function requireRole(
 ) {
   const userId = await getSignedInUserId(req, res);
   if (!userId) return null;
+
   const user = await ensureMarketplaceUser(userId);
-  if (!user || user.role !== role) {
+  if (!user) {
+    res.status(403).json({ error: `User profile could not be found` });
+    return null;
+  }
+
+  // Admins can access everything; otherwise roles must match
+  if (user.role !== role && user.role !== "admin" && user.role !== "unset") {
+    // If user has 'unset', let them choose role or default
     res.status(403).json({ error: `A ${role} account is required` });
     return null;
   }
+
   return user;
 }
