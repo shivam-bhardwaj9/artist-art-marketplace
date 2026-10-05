@@ -5,7 +5,8 @@
  * API for an independent-artist art marketplace
  * OpenAPI spec version: 0.1.0
  */
+import type { RoleInputRole } from './roleInputRole';
 
-export interface HealthStatus {
-  status: string;
+export interface RoleInput {
+  role: RoleInputRole;
 }

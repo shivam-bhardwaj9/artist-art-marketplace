@@ -5,7 +5,9 @@
  * API for an independent-artist art marketplace
  * OpenAPI spec version: 0.1.0
  */
+import type { Artwork } from './artwork';
 
-export interface HealthStatus {
-  status: string;
+export interface ArtworkDetail {
+  artwork: Artwork;
+  similarArtworks: Artwork[];
 }

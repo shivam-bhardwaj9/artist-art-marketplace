@@ -3,13 +3,17 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: API for an independent-artist art marketplace
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: marketplace
+  - name: artists
+  - name: buyer
+  - name: seller
+  - name: storage
 paths:
   /healthz:
     get:
@@ -24,6 +28,477 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /marketplace/home:
+    get:
+      operationId: getMarketplaceHome
+      tags: [marketplace]
+      summary: Get featured artwork, artists, categories, and new arrivals
+      responses:
+        "200":
+          description: Marketplace home data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketplaceHome"
+  /artworks:
+    get:
+      operationId: listArtworks
+      tags: [marketplace]
+      summary: Search and filter published artworks
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [featured, newest, price-low, price-high, popular]
+            default: featured
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 48, default: 24 }
+      responses:
+        "200":
+          description: Matching artwork
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkPage"
+  /artworks/{id}:
+    get:
+      operationId: getArtwork
+      tags: [marketplace]
+      summary: Get an artwork and related pieces
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Artwork detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtworkDetail"
+        "404":
+          description: Artwork not found
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [marketplace]
+      summary: List artwork categories
+      responses:
+        "200":
+          description: Available categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Category" }
+  /artists:
+    get:
+      operationId: listArtists
+      tags: [artists]
+      summary: List featured artists
+      responses:
+        "200":
+          description: Featured artists
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Artist" }
+  /artists/{slug}:
+    get:
+      operationId: getArtist
+      tags: [artists]
+      summary: Get a public artist storefront
+      parameters:
+        - in: path
+          name: slug
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Public artist storefront
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArtistStore"
+        "404":
+          description: Artist not found
+  /account/role:
+    put:
+      operationId: chooseAccountRole
+      tags: [buyer]
+      summary: Set the signed-in user's marketplace role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleInput" }
+      responses:
+        "200":
+          description: Account role saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "401":
+          description: Sign-in required
+  /account:
+    get:
+      operationId: getAccount
+      tags: [buyer]
+      summary: Get the signed-in user's marketplace profile
+      responses:
+        "200":
+          description: Current account
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Account" }
+        "401":
+          description: Sign-in required
+  /buyer/dashboard:
+    get:
+      operationId: getBuyerDashboard
+      tags: [buyer]
+      summary: Get buyer overview, orders, wishlist, and followed artists
+      responses:
+        "200":
+          description: Buyer dashboard summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BuyerDashboard" }
+        "401":
+          description: Sign-in required
+  /buyer/cart:
+    get:
+      operationId: getCart
+      tags: [buyer]
+      summary: Get current buyer cart and order totals
+      responses:
+        "200":
+          description: Cart
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+        "401":
+          description: Sign-in required
+  /buyer/cart/items:
+    post:
+      operationId: addCartItem
+      tags: [buyer]
+      summary: Add one artwork to the buyer cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CartItemInput" }
+      responses:
+        "201":
+          description: Updated cart
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+        "401":
+          description: Sign-in required
+  /buyer/cart/items/{artworkId}:
+    patch:
+      operationId: updateCartItem
+      tags: [buyer]
+      summary: Update cart quantity
+      parameters:
+        - in: path
+          name: artworkId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CartItemUpdate" }
+      responses:
+        "200":
+          description: Updated cart
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+    delete:
+      operationId: removeCartItem
+      tags: [buyer]
+      summary: Remove an artwork from the buyer cart
+      parameters:
+        - in: path
+          name: artworkId
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Updated cart
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Cart" }
+  /buyer/wishlist:
+    get:
+      operationId: getWishlist
+      tags: [buyer]
+      summary: Get the buyer's saved artwork
+      responses:
+        "200":
+          description: Saved artwork
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Artwork" }
+        "401":
+          description: Sign-in required
+  /buyer/wishlist/{artworkId}:
+    put:
+      operationId: saveArtwork
+      tags: [buyer]
+      summary: Save artwork to the buyer's wishlist
+      parameters:
+        - in: path
+          name: artworkId
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Artwork saved
+    delete:
+      operationId: unsaveArtwork
+      tags: [buyer]
+      summary: Remove artwork from the buyer's wishlist
+      parameters:
+        - in: path
+          name: artworkId
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Artwork removed
+  /buyer/following/{artistId}:
+    put:
+      operationId: followArtist
+      tags: [buyer]
+      summary: Follow an artist
+      parameters:
+        - in: path
+          name: artistId
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Artist followed
+    delete:
+      operationId: unfollowArtist
+      tags: [buyer]
+      summary: Unfollow an artist
+      parameters:
+        - in: path
+          name: artistId
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Artist unfollowed
+  /artist/dashboard:
+    get:
+      operationId: getArtistDashboard
+      tags: [seller]
+      summary: Get seller sales and listing overview
+      responses:
+        "200":
+          description: Seller dashboard summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ArtistDashboard" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Artist role required
+  /artist/profile:
+    put:
+      operationId: updateArtistProfile
+      tags: [seller]
+      summary: Create or update the signed-in artist's public profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ArtistProfileInput" }
+      responses:
+        "200":
+          description: Updated artist profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Artist" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Artist role required
+  /artist/artworks:
+    get:
+      operationId: getArtistArtworks
+      tags: [seller]
+      summary: List the signed-in artist's artwork
+      responses:
+        "200":
+          description: Artist listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Artwork" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Artist role required
+    post:
+      operationId: createArtistArtwork
+      tags: [seller]
+      summary: Create an artwork listing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ArtworkInput" }
+      responses:
+        "201":
+          description: Created artwork
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Artwork" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Artist role required
+  /artist/artworks/{id}:
+    patch:
+      operationId: updateArtistArtwork
+      tags: [seller]
+      summary: Update an artwork owned by the signed-in artist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ArtworkInput" }
+      responses:
+        "200":
+          description: Updated artwork
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Artwork" }
+        "403":
+          description: Artist role or ownership required
+    delete:
+      operationId: deleteArtistArtwork
+      tags: [seller]
+      summary: Archive an artwork owned by the signed-in artist
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        "204":
+          description: Artwork archived
+        "403":
+          description: Artist role or ownership required
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [seller]
+      summary: Get moderation queue and marketplace operations metrics
+      responses:
+        "200":
+          description: Admin overview and pending artwork
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AdminDashboard" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Admin role required
+  /admin/artworks/{id}/status:
+    patch:
+      operationId: updateArtworkModerationStatus
+      tags: [seller]
+      summary: Approve or archive an artwork listing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ModerationStatusInput" }
+      responses:
+        "200":
+          description: Updated artwork
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Artwork" }
+        "401":
+          description: Sign-in required
+        "403":
+          description: Admin role required
+        "404":
+          description: Artwork not found
+  /buyer/checkout:
+    post:
+      operationId: createCheckout
+      tags: [buyer]
+      summary: Create a secure checkout session for the buyer cart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CheckoutInput" }
+      responses:
+        "201":
+          description: Secure payment-provider checkout URL
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CheckoutSession" }
+        "401":
+          description: Sign-in required
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [storage]
+      summary: Request a presigned URL for direct artwork image upload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UploadUrlRequest" }
+      responses:
+        "200":
+          description: Upload URL and object path
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UploadUrlResponse" }
+        "400":
+          description: Invalid upload metadata
+        "401":
+          description: Sign-in required
 components:
   schemas:
     HealthStatus:
@@ -33,4 +508,268 @@ components:
           type: string
       required:
         - status
+    Category:
+      type: object
+      required: [id, name, slug, artworkCount]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        slug: { type: string }
+        artworkCount: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+    Artist:
+      type: object
+      required: [id, displayName, slug, location, biography, imageUrl, followerCount, artworkCount, rating]
+      properties:
+        id: { type: integer }
+        displayName: { type: string }
+        slug: { type: string }
+        location: { type: string }
+        biography: { type: string }
+        imageUrl: { type: string }
+        followerCount: { type: integer }
+        artworkCount: { type: integer }
+        rating: { type: number }
+        website: { type: ["string", "null"] }
+    Artwork:
+      type: object
+      required: [id, title, slug, description, price, currency, category, medium, dimensions, yearCreated, status, imageUrl, artist, artworkType, featured]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        slug: { type: string }
+        description: { type: string }
+        price: { type: number }
+        currency: { type: string }
+        category: { type: string }
+        medium: { type: string }
+        dimensions: { type: string }
+        yearCreated: { type: integer }
+        status: { type: string, enum: [draft, pending_review, published, sold, archived] }
+        imageUrl: { type: string }
+        imageUrls:
+          type: array
+          items: { type: string }
+        artist: { $ref: "#/components/schemas/Artist" }
+        artworkType: { type: string, enum: [original, print, digital] }
+        featured: { type: boolean }
+        quantity: { type: integer }
+    ArtworkDetail:
+      type: object
+      required: [artwork, similarArtworks]
+      properties:
+        artwork: { $ref: "#/components/schemas/Artwork" }
+        similarArtworks:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+    ArtworkPage:
+      type: object
+      required: [items, page, total]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+        page: { type: integer }
+        total: { type: integer }
+    ArtistStore:
+      type: object
+      required: [artist, artworks]
+      properties:
+        artist: { $ref: "#/components/schemas/Artist" }
+        artworks:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+    MarketplaceHome:
+      type: object
+      required: [featuredArtworks, trendingArtists, newArrivals, categories]
+      properties:
+        featuredArtworks:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+        trendingArtists:
+          type: array
+          items: { $ref: "#/components/schemas/Artist" }
+        newArrivals:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+        categories:
+          type: array
+          items: { $ref: "#/components/schemas/Category" }
+    RoleInput:
+      type: object
+      required: [role]
+      properties:
+        role: { type: string, enum: [buyer, artist] }
+    Account:
+      type: object
+      required: [id, role]
+      properties:
+        id: { type: string }
+        email: { type: ["string", "null"] }
+        fullName: { type: ["string", "null"] }
+        role: { type: string, enum: [buyer, artist, admin, unset] }
+        artistProfile:
+          oneOf:
+            - { $ref: "#/components/schemas/Artist" }
+            - { type: "null" }
+    CartItem:
+      type: object
+      required: [artwork, quantity, lineTotal]
+      properties:
+        artwork: { $ref: "#/components/schemas/Artwork" }
+        quantity: { type: integer }
+        lineTotal: { type: number }
+    Cart:
+      type: object
+      required: [items, subtotal, shipping, tax, total, currency]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/CartItem" }
+        subtotal: { type: number }
+        shipping: { type: number }
+        tax: { type: number }
+        total: { type: number }
+        currency: { type: string }
+    CartItemInput:
+      type: object
+      required: [artworkId, quantity]
+      properties:
+        artworkId: { type: integer }
+        quantity: { type: integer, minimum: 1 }
+    CartItemUpdate:
+      type: object
+      required: [quantity]
+      properties:
+        quantity: { type: integer, minimum: 1 }
+    BuyerOrder:
+      type: object
+      required: [id, status, total, currency, createdAt, artworkTitles]
+      properties:
+        id: { type: string }
+        status: { type: string }
+        total: { type: number }
+        currency: { type: string }
+        createdAt: { type: string, format: date-time }
+        artworkTitles:
+          type: array
+          items: { type: string }
+    BuyerDashboard:
+      type: object
+      required: [recentOrders, wishlistCount, followedArtists]
+      properties:
+        recentOrders:
+          type: array
+          items: { $ref: "#/components/schemas/BuyerOrder" }
+        wishlistCount: { type: integer }
+        followedArtists:
+          type: array
+          items: { $ref: "#/components/schemas/Artist" }
+    MonthlySales:
+      type: object
+      required: [month, revenue]
+      properties:
+        month: { type: string }
+        revenue: { type: number }
+    ArtistDashboard:
+      type: object
+      required: [totalSales, totalOrders, totalEarnings, pendingOrders, publishedArtworks, views, favorites, monthlySales, bestSellers]
+      properties:
+        totalSales: { type: number }
+        totalOrders: { type: integer }
+        totalEarnings: { type: number }
+        pendingOrders: { type: integer }
+        publishedArtworks: { type: integer }
+        views: { type: integer }
+        favorites: { type: integer }
+        monthlySales:
+          type: array
+          items: { $ref: "#/components/schemas/MonthlySales" }
+        bestSellers:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+    AdminDashboard:
+      type: object
+      required: [userCount, artworkCount, publishedCount, pendingReviewCount, orderCount, grossSales, pendingArtworks]
+      properties:
+        userCount: { type: integer }
+        artworkCount: { type: integer }
+        publishedCount: { type: integer }
+        pendingReviewCount: { type: integer }
+        orderCount: { type: integer }
+        grossSales: { type: number }
+        pendingArtworks:
+          type: array
+          items: { $ref: "#/components/schemas/Artwork" }
+    ModerationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, enum: [published, archived] }
+    ArtworkInput:
+      type: object
+      required: [title, description, price, category, medium, dimensions, yearCreated, imageUrls, artworkType, quantity]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 160 }
+        description: { type: string, minLength: 2, maxLength: 5000 }
+        price: { type: number, minimum: 0 }
+        category: { type: string }
+        medium: { type: string }
+        dimensions: { type: string }
+        yearCreated: { type: integer, minimum: 0 }
+        imageUrls:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: { type: string, format: uri }
+        artworkType: { type: string, enum: [original, print, digital] }
+        quantity: { type: integer, minimum: 1 }
+        featured: { type: boolean, default: false }
+    ArtistProfileInput:
+      type: object
+      required: [displayName, location, biography]
+      properties:
+        displayName: { type: string, minLength: 2, maxLength: 100 }
+        location: { type: string, maxLength: 120 }
+        biography: { type: string, maxLength: 3000 }
+        imageUrl: { type: ["string", "null"], format: uri }
+        website: { type: ["string", "null"], format: uri }
+    CheckoutInput:
+      type: object
+      required: [fullName, email, address1, city, region, postalCode, country]
+      properties:
+        fullName: { type: string }
+        email: { type: string, format: email }
+        phone: { type: ["string", "null"] }
+        address1: { type: string }
+        address2: { type: ["string", "null"] }
+        city: { type: string }
+        region: { type: string }
+        postalCode: { type: string }
+        country: { type: string }
+    CheckoutSession:
+      type: object
+      required: [sessionId, checkoutUrl]
+      properties:
+        sessionId: { type: string }
+        checkoutUrl: { type: string, format: uri }
+    UploadUrlRequest:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, minLength: 1 }
+        size: { type: integer, minimum: 1 }
+        contentType: { type: string, minLength: 1 }
+    UploadUrlResponse:
+      type: object
+      required: [uploadURL, objectPath]
+      properties:
+        uploadURL: { type: string, format: uri }
+        objectPath: { type: string }
+        metadata: { $ref: "#/components/schemas/UploadUrlRequest" }
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: { type: string }
 
