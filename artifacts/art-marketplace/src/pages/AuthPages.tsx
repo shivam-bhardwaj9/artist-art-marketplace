@@ -3,6 +3,34 @@ import { useLocation, Link } from 'wouter';
 import { ArrowRight, User, Palette, Shield, Sparkles, Check } from 'lucide-react';
 import { useAuth } from '../auth-provider';
 
+export function getSafeReturnUrl(defaultFallback = '/'): string {
+  if (typeof window === 'undefined') return defaultFallback;
+  const searchParams = new URLSearchParams(window.location.search);
+  const rawTarget = searchParams.get('returnTo') || searchParams.get('redirect') || '';
+  const action = searchParams.get('action');
+  const artworkId = searchParams.get('artworkId');
+  const artistId = searchParams.get('artistId');
+
+  let target = defaultFallback;
+  // Enforce internal relative path only (prevent open redirects)
+  if (rawTarget && rawTarget.startsWith('/') && !rawTarget.startsWith('//') && !rawTarget.includes('://')) {
+    target = rawTarget;
+  }
+
+  // Preserve query parameters if specified separately
+  const extra = new URLSearchParams();
+  if (action && !target.includes('action=')) extra.set('action', action);
+  if (artworkId && !target.includes('artworkId=')) extra.set('artworkId', artworkId);
+  if (artistId && !target.includes('artistId=')) extra.set('artistId', artistId);
+
+  const extraStr = extra.toString();
+  if (extraStr) {
+    target = target.includes('?') ? `${target}&${extraStr}` : `${target}?${extraStr}`;
+  }
+
+  return target;
+}
+
 export function BrandHeader() {
   return (
     <div className="flex items-center gap-3">
@@ -28,12 +56,11 @@ export function BuyerLoginPage() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const query = new URLSearchParams(window.location.search);
-  const redirectUrl = query.get('redirect') || '/';
+  const returnUrl = getSafeReturnUrl('/');
 
   // If already logged in, redirect
   if (isSignedIn) {
-    setLocation(redirectUrl);
+    setLocation(returnUrl);
     return null;
   }
 
@@ -45,13 +72,13 @@ export function BuyerLoginPage() {
     }
     setIsSubmitting(true);
     signIn('buyer', email.split('@')[0] || 'Collector', email);
-    setLocation(redirectUrl);
+    setLocation(returnUrl);
   };
 
   const handleQuickLogin = (name = 'Elena Rostova', userEmail = 'elena@forma.gallery') => {
     setIsSubmitting(true);
     signIn('buyer', name, userEmail);
-    setLocation(redirectUrl);
+    setLocation(returnUrl);
   };
 
   return (
@@ -171,9 +198,10 @@ export function BuyerRegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const returnUrl = getSafeReturnUrl('/');
 
   if (isSignedIn) {
-    setLocation('/');
+    setLocation(returnUrl);
     return null;
   }
 
@@ -181,7 +209,7 @@ export function BuyerRegisterPage() {
     e.preventDefault();
     setIsSubmitting(true);
     signIn('buyer', name || 'Collector', email || 'collector@forma.gallery');
-    setLocation('/');
+    setLocation(returnUrl);
   };
 
   return (
@@ -271,12 +299,10 @@ export function ArtistLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const query = new URLSearchParams(window.location.search);
-  const redirectUrl = query.get('redirect') || '/artist/dashboard';
+  const returnUrl = getSafeReturnUrl('/artist/dashboard');
 
   if (isSignedIn && user?.role === 'artist') {
-    setLocation('/artist/dashboard');
+    setLocation(returnUrl);
     return null;
   }
 
@@ -284,13 +310,13 @@ export function ArtistLoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     signIn('artist', email.split('@')[0] || 'Studio Artist', email || 'artist@mirasenstudio.com');
-    setLocation('/artist/dashboard');
+    setLocation(returnUrl);
   };
 
   const handleQuickLogin = () => {
     setIsSubmitting(true);
     signIn('artist', 'Mira Sen', 'mira@mirasenstudio.com');
-    setLocation('/artist/dashboard');
+    setLocation(returnUrl);
   };
 
   return (
@@ -404,9 +430,10 @@ export function ArtistRegisterPage() {
   const [email, setEmail] = useState('');
   const [medium, setMedium] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const returnUrl = getSafeReturnUrl('/artist/dashboard');
 
   if (isSignedIn) {
-    setLocation('/artist/dashboard');
+    setLocation(returnUrl);
     return null;
   }
 
@@ -414,7 +441,7 @@ export function ArtistRegisterPage() {
     e.preventDefault();
     setIsSubmitting(true);
     signIn('artist', name || 'Studio Artist', email || 'artist@studio.com');
-    setLocation('/artist/dashboard');
+    setLocation(returnUrl);
   };
 
   return (
@@ -503,9 +530,10 @@ export function AdminLoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const returnUrl = getSafeReturnUrl('/admin/dashboard');
 
   if (isSignedIn && user?.role === 'admin') {
-    setLocation('/admin/dashboard');
+    setLocation(returnUrl);
     return null;
   }
 
@@ -513,13 +541,13 @@ export function AdminLoginPage() {
     e.preventDefault();
     setIsSubmitting(true);
     signIn('admin', 'Forma Curator', email || 'curator@forma.gallery');
-    setLocation('/admin/dashboard');
+    setLocation(returnUrl);
   };
 
   const handleQuickLogin = () => {
     setIsSubmitting(true);
     signIn('admin', 'Forma Curator', 'curator@forma.gallery');
-    setLocation('/admin/dashboard');
+    setLocation(returnUrl);
   };
 
   return (

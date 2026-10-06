@@ -2,8 +2,54 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "@workspace/db/schema";
 
-const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl) throw new Error("DATABASE_URL is required");
+let pool: any = null;
+let db: any = null;
 
-export const pool = new Pool({ connectionString: databaseUrl });
-export const db = drizzle(pool, { schema });
+try {
+  if (process.env.DATABASE_URL) {
+    pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    db = drizzle(pool, { schema });
+  } else {
+    console.warn('[AI Studio] DATABASE_URL not set — using mock database');
+    const noOp = {
+      findMany: async () => [],
+      findFirst: async () => null,
+      findUnique: async () => null,
+      create: async (d: any) => d?.data ?? {},
+      update: async (d: any) => d?.data ?? {},
+      delete: async () => ({}),
+    };
+    db = new Proxy({}, {
+      get: (_, prop) => prop === 'query'
+        ? new Proxy({}, { get: () => noOp })
+        : async () => [],
+    });
+    pool = {
+      query: async () => ({ rows: [] }),
+      connect: async () => ({ query: async () => ({ rows: [] }), release: () => {} }),
+      end: async () => {},
+    };
+  }
+} catch {
+  console.warn('[AI Studio] Database not connected — using mock');
+  const noOp = {
+    findMany: async () => [],
+    findFirst: async () => null,
+    findUnique: async () => null,
+    create: async (d: any) => d?.data ?? {},
+    update: async (d: any) => d?.data ?? {},
+    delete: async () => ({}),
+  };
+  db = new Proxy({}, {
+    get: (_, prop) => prop === 'query'
+      ? new Proxy({}, { get: () => noOp })
+      : async () => [],
+  });
+  pool = {
+    query: async () => ({ rows: [] }),
+    connect: async () => ({ query: async () => ({ rows: [] }), release: () => {} }),
+    end: async () => {},
+  };
+}
+
+export { pool, db };

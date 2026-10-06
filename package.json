@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "license": "MIT",
   "private": true,
+  "type": "module",
   "workspaces": [
     "artifacts/art-marketplace",
     "artifacts/api-server",
@@ -11,8 +12,10 @@
   ],
   "scripts": {
     "dev": "npm run dev --workspace=@workspace/art-marketplace",
-    "build": "npm run build --workspace=@workspace/art-marketplace",
-    "typecheck": "tsc --build"
+    "build": "npm run build --workspace=@workspace/art-marketplace && cp -r artifacts/art-marketplace/dist ./dist",
+    "start": "node server.ts",
+    "typecheck": "tsc --build",
+    "lint": "npm run typecheck"
   },
   "devDependencies": {
     "prettier": "^3.9.6",

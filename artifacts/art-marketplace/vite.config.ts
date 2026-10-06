@@ -7,13 +7,19 @@ import { mockApiPlugin } from './src/mockApiPlugin';
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 const basePath = process.env.BASE_PATH || '/';
 
-export default defineConfig({
-  base: basePath,
-  plugins: [
-    mockApiPlugin(),
+export default defineConfig(({ command }) => {
+  const plugins = [
     react(),
-    tailwindcss({ optimize: false }),
-  ],
+    tailwindcss(),
+  ];
+
+  if (command === 'serve') {
+    plugins.unshift(mockApiPlugin());
+  }
+
+  return {
+    base: basePath,
+    plugins,
   resolve: {
     alias: {
       '@': path.resolve(import.meta.dirname, 'src'),
@@ -23,8 +29,13 @@ export default defineConfig({
         '..',
         'attached_assets',
       ),
+      react: path.resolve(import.meta.dirname, 'node_modules/react'),
+      'react-dom': path.resolve(import.meta.dirname, 'node_modules/react-dom'),
     },
     dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom'],
   },
   root: path.resolve(import.meta.dirname),
   build: {
@@ -45,4 +56,5 @@ export default defineConfig({
     host: '0.0.0.0',
     allowedHosts: true,
   },
+  };
 });

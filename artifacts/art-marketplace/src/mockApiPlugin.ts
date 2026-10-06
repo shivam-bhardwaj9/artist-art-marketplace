@@ -1,62 +1,57 @@
 import type { Plugin } from 'vite';
-import { store } from '../../api-server/src/lib/store';
+import { store } from '../../api-server/src/lib/store.ts';
 
-export function mockApiPlugin(): Plugin {
-  function jsonResponse(res: any, status: number, data: any) {
-    res.statusCode = status;
-    res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(data));
-  }
+function jsonResponse(res: any, status: number, data: any): boolean {
+  res.statusCode = status;
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify(data));
+  return true;
+}
 
-  function parseBody(req: any): Promise<any> {
-    return new Promise((resolve) => {
-      let body = '';
-      req.on('data', (chunk: any) => { body += chunk; });
-      req.on('end', () => {
-        try {
-          resolve(body ? JSON.parse(body) : {});
-        } catch {
-          resolve({});
-        }
-      });
+function parseBody(req: any): Promise<any> {
+  return new Promise((resolve) => {
+    let body = '';
+    req.on('data', (chunk: any) => { body += chunk; });
+    req.on('end', () => {
+      try {
+        resolve(body ? JSON.parse(body) : {});
+      } catch {
+        resolve({});
+      }
     });
+  });
+}
+
+// Server-side authentication verification - does NOT silently treat visitors as logged in
+function getAuthenticatedUser(req: any): { id: string; role: 'buyer' | 'artist' | 'admin' } | null {
+  const authHeader = req.headers.authorization;
+  let token: string | null = null;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.slice(7).trim();
   }
 
-  // Server-side authentication verification - does NOT silently treat visitors as logged in
-  function getAuthenticatedUser(req: any): { id: string; role: 'buyer' | 'artist' | 'admin' } | null {
-    const authHeader = req.headers.authorization;
-    let token: string | null = null;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.slice(7).trim();
-    } else if (req.headers['x-user-id']) {
-      token = String(req.headers['x-user-id']).trim();
-    }
-
-    if (!token || token === 'null' || token === 'undefined' || token === '') {
-      return null;
-    }
-
-    const user = store.getUser(token) || store.ensureUser(token, 'buyer');
-    return { id: user.id, role: user.role as any };
+  if (!token || token === 'null' || token === 'undefined' || token === '') {
+    return null;
   }
 
-  return {
-    name: 'art-marketplace-api-server',
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const urlStr = req.url || '';
-        if (!urlStr.startsWith('/api')) {
-          return next();
-        }
+  const user = store.getUser(token) || store.ensureUser(token, 'buyer');
+  return { id: user.id, role: user.role as any };
+}
 
-        const [pathWithQuery] = urlStr.split('#');
-        const [rawPath, queryString] = pathWithQuery.split('?');
-        const pathname = rawPath.replace(/^\/api/, '');
-        const query = new URLSearchParams(queryString || '');
+export async function handleApiRequest(req: any, res: any): Promise<boolean> {
+  const urlStr = req.url || '';
+  if (!urlStr.startsWith('/api')) {
+    return false;
+  }
 
-        // -------------------------------------------------------------
-        // PUBLIC ENDPOINTS (No authentication required)
-        // -------------------------------------------------------------
+  const [pathWithQuery] = urlStr.split('#');
+  const [rawPath, queryString] = pathWithQuery.split('?');
+  const pathname = rawPath.replace(/^\/api/, '');
+  const query = new URLSearchParams(queryString || '');
+
+  // -------------------------------------------------------------
+  // PUBLIC ENDPOINTS (No authentication required)
+  // -------------------------------------------------------------
 
         // 1. Health check
         if (pathname === '/healthz' && req.method === 'GET') {
@@ -115,14 +110,6 @@ export function mockApiPlugin(): Plugin {
             token: userId,
             user: { id: user.id, role, email, fullName: name },
           });
-        }
-
-        // -------------------------------------------------------------
-        // PROTECTED ENDPOINTS (Authentication strictly required)
-        // -------------------------------------------------------------
-        const authUser = getAuthenticatedUser(req);
-        if (!authUser) {
-          return jsonResponse(res, 401, { error: 'Sign-in required' });
         }
 
         // 4. Marketplace Home: GET /api/marketplace/home
@@ -197,11 +184,13 @@ export function mockApiPlugin(): Plugin {
           });
         }
 
-        // 6. Single Artwork: GET /api/artworks/:id
-        const artworkMatch = pathname.match(/^\/artworks\/(\d+)$/);
+        // 6. Single Artwork: GET /api/artworks/:id or :slug
+        const artworkMatch = pathname.match(/^\/artworks\/([^/]+)$/);
         if (artworkMatch && req.method === 'GET') {
-          const id = parseInt(artworkMatch[1], 10);
-          const artwork = store.getArtworkById(id);
+          const idOrSlug = artworkMatch[1];
+          const artwork = /^\d+$/.test(idOrSlug)
+            ? (store.getArtworkById(parseInt(idOrSlug, 10)) || store.getArtworkBySlug(idOrSlug))
+            : store.getArtworkBySlug(idOrSlug);
           if (!artwork) {
             return jsonResponse(res, 404, { error: 'Artwork not found' });
           }
@@ -299,6 +288,14 @@ export function mockApiPlugin(): Plugin {
             },
             artworks: artistArtworks,
           });
+        }
+
+        // -------------------------------------------------------------
+        // PROTECTED ENDPOINTS (Authentication strictly required)
+        // -------------------------------------------------------------
+        const authUser = getAuthenticatedUser(req);
+        if (!authUser) {
+          return jsonResponse(res, 401, { error: 'Sign-in required' });
         }
 
         // 10. Account: GET /api/account, GET /api/account/role, PUT /api/account/role
@@ -798,7 +795,19 @@ export function mockApiPlugin(): Plugin {
           });
         }
 
-        return next();
+        return false;
+}
+
+export function mockApiPlugin(): Plugin {
+  return {
+    name: 'art-marketplace-api-server',
+    apply: 'serve',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        const handled = await handleApiRequest(req, res);
+        if (!handled) {
+          next();
+        }
       });
     },
   };

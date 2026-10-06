@@ -19,22 +19,24 @@ import {
   useGetCart, useGetMarketplaceHome, useGetWishlist, useHealthCheck,
   useListArtists, useListArtworks, useListCategories, useRemoveCartItem,
   useSaveArtwork, useUnfollowArtist, useUnsaveArtwork, useUpdateArtistArtwork,
-  useUpdateArtistProfile, useUpdateCartItem, getGetAccountQueryKey,
+  useUpdateArtistProfile, useUpdateCartItem, useGetAdminDashboard,
+  useUpdateArtworkModerationStatus, getGetAccountQueryKey,
   getGetArtworkQueryKey, getGetArtistArtworksQueryKey, getGetArtistDashboardQueryKey, getGetArtistQueryKey,
   getGetBuyerDashboardQueryKey, getGetCartQueryKey, getGetMarketplaceHomeQueryKey,
   getGetWishlistQueryKey, getHealthCheckQueryKey, getListArtistsQueryKey,
-  getListArtworksQueryKey, getListCategoriesQueryKey,
+  getListArtworksQueryKey, getListCategoriesQueryKey, getGetAdminDashboardQueryKey,
 } from '@workspace/api-client-react';
 import type { Artwork, ArtworkInput, Artist, CheckoutInput, ListArtworksParams } from '@workspace/api-client-react';
 import {
   ArrowDownRight, ArrowLeft, ArrowRight, ArrowUpRight, Check,
   CircleUserRound, Filter, Heart, Menu, Minus, Plus,
-  Search, ShoppingBag, Sparkles, X,
+  Search, ShoppingBag, Sparkles, X, Shield, Eye,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, Route, Switch, useLocation, useParams, Router as WouterRouter } from 'wouter';
 import { getArtworkImages, getArtworkPrimaryImage } from './lib/images';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { toast } from '@/hooks/use-toast';
 import {
   BuyerLoginPage,
   BuyerRegisterPage,
@@ -235,21 +237,34 @@ function ArtworkCard({ artwork, index = 0 }: { artwork: Artwork; index?: number 
 
   const toggleSave = () => {
     if (!isSignedIn) {
-      setLocation(`/buyer/login?redirect=${encodeURIComponent(`/artworks/${artwork.id}`)}`);
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent(`/artworks/${artwork.id}`)}&action=wishlist&artworkId=${artwork.id}`);
       return;
     }
     return saved
-      ? unsave.mutate({ artworkId: artwork.id }, { onSuccess: () => client.invalidateQueries({ queryKey: getGetWishlistQueryKey() }) })
-      : save.mutate({ artworkId: artwork.id }, { onSuccess: () => client.invalidateQueries({ queryKey: getGetWishlistQueryKey() }) });
+      ? unsave.mutate({ artworkId: artwork.id }, {
+          onSuccess: () => {
+            client.invalidateQueries({ queryKey: getGetWishlistQueryKey() });
+            toast({ title: 'Removed from collection', description: `"${artwork.title}" was removed from your wishlist.` });
+          },
+        })
+      : save.mutate({ artworkId: artwork.id }, {
+          onSuccess: () => {
+            client.invalidateQueries({ queryKey: getGetWishlistQueryKey() });
+            toast({ title: 'Saved to collection', description: `"${artwork.title}" was saved to your wishlist.` });
+          },
+        });
   };
 
   const addToBag = () => {
     if (!isSignedIn) {
-      setLocation(`/buyer/login?redirect=${encodeURIComponent(`/artworks/${artwork.id}`)}`);
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent(`/artworks/${artwork.id}`)}&action=add-to-cart&artworkId=${artwork.id}`);
       return;
     }
     add.mutate({ data: { artworkId: artwork.id, quantity: 1 } }, {
-      onSuccess: () => client.invalidateQueries({ queryKey: getGetCartQueryKey() }),
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: getGetCartQueryKey() });
+        toast({ title: 'Added to bag', description: `"${artwork.title}" was added to your cart.` });
+      },
     });
   };
 
@@ -358,6 +373,43 @@ function ArtworkDetailPage() {
   const save = useSaveArtwork();
   const item: any = query.data?.artwork || query.data;
 
+  // Auto-continuation effect when returning from login - MUST be called unconditionally before early returns
+  const actionExecutedRef = useRef(false);
+  useEffect(() => {
+    if (!isSignedIn || !item?.id || actionExecutedRef.current) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const action = searchParams.get('action');
+    const targetArtworkId = Number(searchParams.get('artworkId'));
+
+    if (action && (!targetArtworkId || targetArtworkId === item.id)) {
+      actionExecutedRef.current = true;
+      window.history.replaceState({}, '', window.location.pathname);
+
+      if (action === 'add-to-cart') {
+        add.mutate({ data: { artworkId: item.id, quantity: 1 } }, {
+          onSuccess: () => {
+            client.invalidateQueries({ queryKey: getGetCartQueryKey() });
+            toast({ title: 'Added to cart', description: `"${item.title}" was added to your bag.` });
+          },
+        });
+      } else if (action === 'buy-now') {
+        add.mutate({ data: { artworkId: item.id, quantity: 1 } }, {
+          onSuccess: () => {
+            client.invalidateQueries({ queryKey: getGetCartQueryKey() });
+            setLocation('/cart');
+          },
+        });
+      } else if (action === 'wishlist') {
+        save.mutate({ artworkId: item.id }, {
+          onSuccess: () => {
+            client.invalidateQueries({ queryKey: getGetWishlistQueryKey() });
+            toast({ title: 'Saved to collection', description: `"${item.title}" was saved to your wishlist.` });
+          },
+        });
+      }
+    }
+  }, [isSignedIn, item?.id, item?.title, add, save, client, setLocation]);
+
   if (query.isLoading) return <Shell><div className="mx-auto max-w-[1440px] px-5 py-14"><LoadingState /></div></Shell>;
   if (query.isError || !item) return <Shell><div className="mx-auto max-w-5xl px-5 py-14"><QueryError retry={() => query.refetch()} label="This artwork has slipped out of view." /></div></Shell>;
 
@@ -366,21 +418,40 @@ function ArtworkDetailPage() {
 
   const addToBag = () => {
     if (!isSignedIn) {
-      setLocation(`/buyer/login?redirect=${encodeURIComponent(`/artworks/${item.id}`)}`);
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent(`/artworks/${item.id}`)}&action=add-to-cart&artworkId=${item.id}`);
       return;
     }
     add.mutate({ data: { artworkId: item.id, quantity: 1 } }, {
-      onSuccess: () => client.invalidateQueries({ queryKey: getGetCartQueryKey() }),
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: getGetCartQueryKey() });
+        toast({ title: 'Added to cart', description: `"${item.title}" was added to your bag.` });
+      },
+    });
+  };
+
+  const buyNow = () => {
+    if (!isSignedIn) {
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent('/cart')}&action=buy-now&artworkId=${item.id}`);
+      return;
+    }
+    add.mutate({ data: { artworkId: item.id, quantity: 1 } }, {
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: getGetCartQueryKey() });
+        setLocation('/cart');
+      },
     });
   };
 
   const saveForLater = () => {
     if (!isSignedIn) {
-      setLocation(`/buyer/login?redirect=${encodeURIComponent(`/artworks/${item.id}`)}`);
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent(`/artworks/${item.id}`)}&action=wishlist&artworkId=${item.id}`);
       return;
     }
     save.mutate({ artworkId: item.id }, {
-      onSuccess: () => client.invalidateQueries({ queryKey: getGetWishlistQueryKey() }),
+      onSuccess: () => {
+        client.invalidateQueries({ queryKey: getGetWishlistQueryKey() });
+        toast({ title: 'Saved to collection', description: `"${item.title}" was saved to your wishlist.` });
+      },
     });
   };
 
@@ -405,12 +476,19 @@ function ArtworkDetailPage() {
       <p className="mt-7 font-editorial text-3xl" data-testid="text-artwork-detail-price">{money(item.price, item.currency)}</p>
       <p className="mt-5 max-w-lg text-sm leading-7 text-[#665e53]" data-testid="text-artwork-description">{item.description}</p>
       <div className="my-7 grid grid-cols-2 gap-y-4 border-y border-border py-5 text-xs"><span className="text-muted-foreground">Medium</span><span>{item.medium}</span><span className="text-muted-foreground">Dimensions</span><span>{item.dimensions}</span><span className="text-muted-foreground">Created</span><span>{item.yearCreated}</span><span className="text-muted-foreground">Availability</span><span>{item.quantity === 1 ? 'One of a kind' : `${item.quantity ?? 'Limited'} available`}</span></div>
-      <button onClick={addToBag} disabled={add.isPending} className="button-dark w-full" data-testid="button-detail-add-cart">
-        {add.isPending ? 'Adding to your bag…' : 'Add to bag'}<ShoppingBag size={16} />
-      </button>
-      <button onClick={saveForLater} disabled={save.isPending} className="button-outline mt-3 w-full" data-testid="button-detail-save">
-        <Heart size={15} /> Save for later
-      </button>
+      <div className="flex flex-col gap-3">
+        <button onClick={buyNow} disabled={add.isPending} className="button-dark w-full justify-center" data-testid="button-detail-buy-now">
+          Acquire artwork <ArrowRight size={15} />
+        </button>
+        <div className="grid grid-cols-2 gap-3">
+          <button onClick={addToBag} disabled={add.isPending} className="button-outline w-full justify-center" data-testid="button-detail-add-cart">
+            {add.isPending ? 'Adding…' : 'Add to bag'} <ShoppingBag size={15} />
+          </button>
+          <button onClick={saveForLater} disabled={save.isPending} className="button-outline w-full justify-center" data-testid="button-detail-save">
+            <Heart size={15} /> Save for later
+          </button>
+        </div>
+      </div>
       {(add.isError || save.isError) && <p className="mt-3 text-center text-xs text-destructive" role="status" data-testid="status-detail-error">Please sign in to save or add this artwork.</p>}
       <Link href={`/artist/${item.artist?.slug || 'artist'}`} className="mt-8 flex items-center gap-4 border-t border-border pt-6" data-testid="link-artist-story">
         {item.artist?.imageUrl ? <img src={item.artist.imageUrl} alt="" className="h-14 w-14 rounded-full object-cover" /> : <span className="flex h-14 w-14 items-center justify-center rounded-full bg-secondary font-editorial text-xl">{item.artist?.displayName?.slice(0,1) || 'A'}</span>}
@@ -436,20 +514,55 @@ function ArtistStorePage() {
   const { slug = '' } = useParams<{ slug: string }>();
   const store = useGetArtist(slug, { query: { enabled: !!slug, queryKey: getGetArtistQueryKey(slug) } });
   const client = useQueryClient();
+  const { isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
   const follow = useFollowArtist();
   const unfollow = useUnfollowArtist();
   const [following, setFollowing] = useState(false);
+
+  const { artist, artworks } = store.data || ({} as any);
+
+  // Auto-continuation effect for follow action
+  const followActionExecutedRef = useRef(false);
+  useEffect(() => {
+    if (!isSignedIn || !artist?.id || followActionExecutedRef.current) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    if (searchParams.get('action') === 'follow') {
+      followActionExecutedRef.current = true;
+      window.history.replaceState({}, '', window.location.pathname);
+      follow.mutate({ artistId: artist.id }, {
+        onSuccess: () => {
+          setFollowing(true);
+          client.invalidateQueries({ queryKey: getGetBuyerDashboardQueryKey() });
+          client.invalidateQueries({ queryKey: getListArtistsQueryKey() });
+          client.invalidateQueries({ queryKey: getGetArtistQueryKey(slug) });
+          toast({ title: 'Following artist', description: `You are now following ${artist.displayName}.` });
+        },
+      });
+    }
+  }, [isSignedIn, artist?.id, slug]);
+
   if (store.isLoading) return <Shell><div className="mx-auto max-w-[1440px] px-5 py-14"><LoadingState /></div></Shell>;
   if (store.isError || !store.data) return <Shell><div className="mx-auto max-w-5xl px-5 py-14"><QueryError retry={() => store.refetch()} label="This artist’s studio is unavailable." /></div></Shell>;
-  const { artist, artworks } = store.data;
+
   const toggleFollow = () => {
+    if (!isSignedIn) {
+      setLocation(`/buyer/login?returnTo=${encodeURIComponent(`/artist/${slug}`)}&action=follow&artistId=${artist.id}`);
+      return;
+    }
     const mutation = following ? unfollow : follow;
-    mutation.mutate({ artistId: artist.id }, { onSuccess: () => {
-      setFollowing(!following);
-      client.invalidateQueries({ queryKey: getGetBuyerDashboardQueryKey() });
-      client.invalidateQueries({ queryKey: getListArtistsQueryKey() });
-      client.invalidateQueries({ queryKey: getGetArtistQueryKey(slug) });
-    } });
+    mutation.mutate({ artistId: artist.id }, {
+      onSuccess: () => {
+        setFollowing(!following);
+        client.invalidateQueries({ queryKey: getGetBuyerDashboardQueryKey() });
+        client.invalidateQueries({ queryKey: getListArtistsQueryKey() });
+        client.invalidateQueries({ queryKey: getGetArtistQueryKey(slug) });
+        toast({
+          title: following ? 'Unfollowed artist' : 'Following artist',
+          description: following ? `You are no longer following ${artist.displayName}.` : `You are now following ${artist.displayName}.`,
+        });
+      },
+    });
   };
   return <Shell><section className="relative overflow-hidden bg-[#e8e0d4]">
     <div className="mx-auto grid max-w-[1440px] gap-8 px-5 py-12 md:grid-cols-[.42fr_1fr] md:items-center md:px-10 md:py-20">
@@ -526,9 +639,11 @@ function AccountPage() {
       {recentOrders.length ? (
         <div className="border-t border-border">
           {recentOrders.map((order: any) => {
-            const titles = Array.isArray(order.artworkTitles) && order.artworkTitles.length
+            const titles = Array.isArray(order?.artworkTitles) && order.artworkTitles.length
               ? order.artworkTitles.join(', ')
-              : 'Original Artwork';
+              : (Array.isArray(order?.items) && order.items.length
+                  ? order.items.map((i: any) => i?.title || 'Artwork').filter(Boolean).join(', ')
+                  : 'Original Artwork');
             return (
               <div key={order.id} className="grid gap-2 border-b border-border py-5 md:grid-cols-[1fr_1fr_auto_auto] md:items-center" data-testid={`row-order-${order.id}`}>
                 <span className="font-editorial text-lg">{titles}</span>
@@ -555,8 +670,9 @@ function WishlistPage() {
 }
 
 function CartPage() {
+  const { isSignedIn } = useAuth();
   const client = useQueryClient();
-  const cart = useGetCart({ query: { queryKey: getGetCartQueryKey() } });
+  const cart = useGetCart({ query: { queryKey: getGetCartQueryKey(), enabled: isSignedIn } });
   const update = useUpdateCartItem();
   const remove = useRemoveCartItem();
   const checkout = useCreateCheckout();
@@ -570,20 +686,49 @@ function CartPage() {
     const data: CheckoutInput = Object.fromEntries(form.entries()) as unknown as CheckoutInput;
     checkout.mutate({ data }, { onSuccess: session => { window.location.assign(session.checkoutUrl); }, onError: () => setCheckoutError('Checkout could not start. Please check your details and try again.') });
   };
+
+  if (!isSignedIn) {
+    return (
+      <Shell>
+        <section className="mx-auto max-w-[1280px] px-5 py-14 md:px-10 md:py-20">
+          <PageTitle kicker="A good choice" title="Your cart." detail="Original work, packed with care and sent from the artist’s studio." />
+          <div className="my-10 border border-dashed border-[#cfc3b1] bg-[#f0eadf] px-6 py-16 text-center" data-testid="cart-unauth-state">
+            <ShoppingBag className="mx-auto text-[#a78c5c]" size={28} strokeWidth={1.3} />
+            <h2 className="mt-4 font-editorial text-3xl">Sign in to view and save your cart</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+              Sign in to access your saved pieces, complete your acquisition, or keep exploring original works from independent artists.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/buyer/login?returnTo=/cart" className="button-dark" data-testid="button-cart-signin">
+                Sign In <ArrowRight size={15} />
+              </Link>
+              <Link href="/artworks" className="button-outline" data-testid="link-cart-browse">
+                Explore the gallery
+              </Link>
+            </div>
+          </div>
+        </section>
+      </Shell>
+    );
+  }
+
   if (cart.isLoading) return <Shell><div className="mx-auto max-w-[1440px] px-5 py-14"><LoadingState /></div></Shell>;
-  if (cart.isError) return <Shell><div className="mx-auto max-w-4xl px-5 py-14"><QueryError retry={() => cart.refetch()} label="Your bag is waiting for you to sign in." /></div></Shell>;
-  const items = cart.data?.items || [];
+  if (cart.isError) return <Shell><div className="mx-auto max-w-4xl px-5 py-14"><QueryError retry={() => cart.refetch()} label="Your bag couldn’t be loaded right now." /></div></Shell>;
+  const items = Array.isArray(cart.data?.items) ? cart.data.items : [];
   return <Shell><section className="mx-auto max-w-[1280px] px-5 py-14 md:px-10 md:py-20">
     <PageTitle kicker="A good choice" title="Your bag." detail="Original work, packed with care and sent from the artist’s studio." />
     {!items.length ? <EmptyState title="Your bag is still empty" copy="Take your time. The right piece has a way of finding you." href="/artworks" action="Explore the gallery" /> : <div className="grid gap-12 md:grid-cols-[1.5fr_.7fr]">
-      <div className="border-t border-border">{items.map(({ artwork, quantity, lineTotal }: any) => {
+      <div className="border-t border-border">{items.map((item: any) => {
+        const artwork = item?.artwork || {};
+        const artworkId = artwork?.id || item?.artworkId || 0;
         const primaryImg = getArtworkPrimaryImage(artwork);
-        const effectiveLineTotal = lineTotal !== undefined ? lineTotal : (artwork?.price || 0) * (quantity || 1);
+        const quantity = item?.quantity || 1;
+        const effectiveLineTotal = item?.lineTotal !== undefined ? item.lineTotal : (artwork?.price || 0) * quantity;
         return (
-          <div key={artwork.id} className="grid grid-cols-[94px_1fr_auto] gap-4 border-b border-border py-5 md:grid-cols-[130px_1fr_auto_auto] md:gap-6" data-testid={`row-cart-${artwork.id}`}>
-            <Link href={`/artworks/${artwork.id}`} data-testid={`link-cart-art-${artwork.id}`}><img src={primaryImg} alt={artwork.title} onError={e => { e.currentTarget.src = fallbackImage(artwork.id); }} className="aspect-[4/5] w-full object-cover" /></Link>
-            <div className="py-1"><p className="eyebrow text-[#927a52]">{artwork.category}</p><Link href={`/artworks/${artwork.id}`} className="mt-2 block font-editorial text-xl" data-testid={`text-cart-title-${artwork.id}`}>{artwork.title}</Link><p className="mt-1 text-xs text-muted-foreground">{artwork.artist?.displayName || 'Artist'}</p><div className="mt-4 flex items-center border border-border"><button onClick={() => quantity > 1 && changeQuantity(artwork.id, quantity - 1)} aria-label="Decrease quantity" className="p-2" disabled={quantity <= 1} data-testid={`button-cart-minus-${artwork.id}`}><Minus size={13} /></button><span className="min-w-8 text-center text-xs" data-testid={`text-cart-quantity-${artwork.id}`}>{quantity}</span><button onClick={() => changeQuantity(artwork.id, quantity + 1)} aria-label="Increase quantity" className="p-2" data-testid={`button-cart-plus-${artwork.id}`}><Plus size={13} /></button></div><button onClick={() => remove.mutate({ artworkId: artwork.id }, { onSuccess: () => client.invalidateQueries({ queryKey: getGetCartQueryKey() }) })} className="mt-3 text-[9px] uppercase tracking-[.14em] text-muted-foreground underline underline-offset-4" data-testid={`button-cart-remove-${artwork.id}`}>Remove</button></div>
-            <span className="pt-2 text-xs" data-testid={`text-cart-line-total-${artwork.id}`}>{money(effectiveLineTotal, cart.data?.currency || 'USD')}</span>
+          <div key={artworkId} className="grid grid-cols-[94px_1fr_auto] gap-4 border-b border-border py-5 md:grid-cols-[130px_1fr_auto_auto] md:gap-6" data-testid={`row-cart-${artworkId}`}>
+            <Link href={`/artworks/${artworkId}`} data-testid={`link-cart-art-${artworkId}`}><img src={primaryImg} alt={artwork.title || 'Artwork'} onError={e => { e.currentTarget.src = fallbackImage(artworkId); }} className="aspect-[4/5] w-full object-cover" /></Link>
+            <div className="py-1"><p className="eyebrow text-[#927a52]">{artwork.category || 'Artwork'}</p><Link href={`/artworks/${artworkId}`} className="mt-2 block font-editorial text-xl" data-testid={`text-cart-title-${artworkId}`}>{artwork.title || 'Untitled'}</Link><p className="mt-1 text-xs text-muted-foreground">{artwork.artist?.displayName || 'Artist'}</p><div className="mt-4 flex items-center border border-border"><button onClick={() => quantity > 1 && changeQuantity(artworkId, quantity - 1)} aria-label="Decrease quantity" className="p-2" disabled={quantity <= 1} data-testid={`button-cart-minus-${artworkId}`}><Minus size={13} /></button><span className="min-w-8 text-center text-xs" data-testid={`text-cart-quantity-${artworkId}`}>{quantity}</span><button onClick={() => changeQuantity(artworkId, quantity + 1)} aria-label="Increase quantity" className="p-2" data-testid={`button-cart-plus-${artworkId}`}><Plus size={13} /></button></div><button onClick={() => remove.mutate({ artworkId }, { onSuccess: () => client.invalidateQueries({ queryKey: getGetCartQueryKey() }) })} className="mt-3 text-[9px] uppercase tracking-[.14em] text-muted-foreground underline underline-offset-4" data-testid={`button-cart-remove-${artworkId}`}>Remove</button></div>
+            <span className="pt-2 text-xs" data-testid={`text-cart-line-total-${artworkId}`}>{money(effectiveLineTotal, cart.data?.currency || 'USD')}</span>
           </div>
         );
       })}</div>
@@ -730,7 +875,7 @@ function ArtworkFormPage({ editing }: { editing: boolean }) {
   };
   if (editing && list.isLoading) return <Shell><div className="mx-auto max-w-[1440px] px-5 py-14"><LoadingState /></div></Shell>;
   if (editing && (list.isError || !existing)) return <Shell><div className="mx-auto max-w-4xl px-5 py-14"><QueryError retry={() => list.refetch()} label="This artwork isn’t in your studio." /></div></Shell>;
-  const imageUrls = getArtworkImages(existing).join('\n') || existing?.imageUrl || '';
+  const imageUrls = (Array.isArray(getArtworkImages(existing)) ? getArtworkImages(existing) : []).join('\n') || existing?.imageUrl || '';
   return <Shell><section className="mx-auto max-w-[950px] px-5 py-12 md:px-10 md:py-16">
     <Link href="/artist/artworks" className="mb-8 inline-flex items-center gap-2 text-[10px] uppercase tracking-[.15em] text-muted-foreground" data-testid="link-back-studio"><ArrowLeft size={14} /> Back to your artworks</Link>
     <PageTitle kicker={editing ? 'Make a change' : 'Put it out there'} title={editing ? 'Edit your artwork.' : 'Add a new artwork.'} detail="Tell collectors what makes this piece yours." />
@@ -752,6 +897,200 @@ function ArtworkFormPage({ editing }: { editing: boolean }) {
   </section></Shell>;
 }
 
+function AdminDashboardPage() {
+  const client = useQueryClient();
+  const dashboard = useGetAdminDashboard({ query: { queryKey: getGetAdminDashboardQueryKey() } });
+  const updateStatus = useUpdateArtworkModerationStatus();
+  const [activeTab, setActiveTab] = useState<'pending' | 'overview'>('pending');
+
+  const handleModerate = (artworkId: number, status: 'published' | 'archived') => {
+    updateStatus.mutate(
+      { id: artworkId, data: { status } },
+      {
+        onSuccess: () => {
+          client.invalidateQueries({ queryKey: getGetAdminDashboardQueryKey() });
+          client.invalidateQueries({ queryKey: getListArtworksQueryKey() });
+          toast({
+            title: status === 'published' ? 'Artwork approved' : 'Artwork archived',
+            description: `The artwork was successfully ${status === 'published' ? 'published to the gallery' : 'archived'}.`,
+          });
+        },
+      }
+    );
+  };
+
+  if (dashboard.isLoading) return <Shell><div className="mx-auto max-w-[1440px] px-5 py-14"><LoadingState /></div></Shell>;
+  if (dashboard.isError || !dashboard.data) return <Shell><div className="mx-auto max-w-4xl px-5 py-14"><QueryError retry={() => dashboard.refetch()} label="Curator dashboard could not load." /></div></Shell>;
+
+  const data = dashboard.data;
+  const pending = Array.isArray(data.pendingArtworks) ? data.pendingArtworks : [];
+
+  return (
+    <Shell>
+      <section className="mx-auto max-w-[1440px] px-5 py-12 md:px-10 md:py-16">
+        <div className="mb-10 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+          <div>
+            <p className="eyebrow text-[#8f754b]">Forma Administration</p>
+            <h1 className="mt-2 font-editorial text-4xl tracking-[-.04em] md:text-5xl">Curator console.</h1>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('pending')}
+              className={`px-4 py-2 text-xs uppercase tracking-wider transition ${
+                activeTab === 'pending' ? 'bg-[#342f29] text-[#fbf8f1]' : 'border border-border bg-card'
+              }`}
+              data-testid="tab-pending-artworks"
+            >
+              Moderation Queue ({pending.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`px-4 py-2 text-xs uppercase tracking-wider transition ${
+                activeTab === 'overview' ? 'bg-[#342f29] text-[#fbf8f1]' : 'border border-border bg-card'
+              }`}
+              data-testid="tab-curator-overview"
+            >
+              Metrics & Operations
+            </button>
+          </div>
+        </div>
+
+        {/* Overview Metric Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="border border-border bg-card p-5" data-testid="stat-pending">
+            <p className="eyebrow text-[#8f754b]">Pending Review</p>
+            <p className="mt-2 font-editorial text-3xl">{pending.length}</p>
+          </div>
+          <div className="border border-border bg-card p-5" data-testid="stat-total-artworks">
+            <p className="eyebrow text-[#8f754b]">Total Artworks</p>
+            <p className="mt-2 font-editorial text-3xl">{data.totalArtworks ?? 0}</p>
+          </div>
+          <div className="border border-border bg-card p-5" data-testid="stat-total-artists">
+            <p className="eyebrow text-[#8f754b]">Artists</p>
+            <p className="mt-2 font-editorial text-3xl">{data.totalArtists ?? 0}</p>
+          </div>
+          <div className="border border-border bg-card p-5" data-testid="stat-total-revenue">
+            <p className="eyebrow text-[#8f754b]">Gross Sales</p>
+            <p className="mt-2 font-editorial text-3xl">{money(data.totalRevenue ?? 0, 'USD')}</p>
+          </div>
+          <div className="border border-border bg-card p-5" data-testid="stat-total-commission">
+            <p className="eyebrow text-[#8f754b]">Commission ({data.commissionRate ?? 10}%)</p>
+            <p className="mt-2 font-editorial text-3xl">{money(data.totalCommission ?? 0, 'USD')}</p>
+          </div>
+        </div>
+
+        {/* Tab 1: Moderation Queue */}
+        {activeTab === 'pending' && (
+          <div className="mt-12">
+            <h2 className="font-editorial text-2xl">Artworks Awaiting Review</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Review artist submissions before publishing them to the public marketplace.
+            </p>
+
+            {pending.length === 0 ? (
+              <div className="mt-6 border border-dashed border-[#cfc3b1] bg-[#f0eadf] px-6 py-12 text-center">
+                <Check className="mx-auto text-[#8f754b]" size={24} />
+                <h3 className="mt-3 font-editorial text-xl">Queue is clear</h3>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  All submitted artworks have been reviewed and published.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 divide-y divide-border border-y border-border">
+                {pending.map((art: any) => {
+                  const img = getArtworkPrimaryImage(art);
+                  return (
+                    <div
+                      key={art.id}
+                      className="grid grid-cols-[80px_1fr] items-center gap-4 py-5 md:grid-cols-[100px_2fr_1fr_1fr_auto] md:gap-6"
+                      data-testid={`row-pending-artwork-${art.id}`}
+                    >
+                      <img src={img} alt={art.title} className="aspect-[4/5] w-full object-cover" />
+                      <div>
+                        <p className="eyebrow text-[#8f754b]">{art.category}</p>
+                        <Link href={`/artworks/${art.id}`} className="font-editorial text-xl hover:underline">
+                          {art.title}
+                        </Link>
+                        <p className="mt-1 text-xs text-muted-foreground">{art.medium}</p>
+                        <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">{art.description}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Type</p>
+                        <p className="mt-1 text-xs capitalize">{art.artworkType}</p>
+                      </div>
+                      <div>
+                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Price</p>
+                        <p className="mt-1 font-editorial text-lg">{money(art.price, art.currency || 'USD')}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => handleModerate(art.id, 'published')}
+                          disabled={updateStatus.isPending}
+                          className="button-dark text-xs"
+                          data-testid={`button-approve-artwork-${art.id}`}
+                        >
+                          Publish
+                        </button>
+                        <button
+                          onClick={() => handleModerate(art.id, 'archived')}
+                          disabled={updateStatus.isPending}
+                          className="button-outline text-xs text-destructive"
+                          data-testid={`button-archive-artwork-${art.id}`}
+                        >
+                          Archive
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Tab 2: Metrics and Policy */}
+        {activeTab === 'overview' && (
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <div className="border border-border bg-card p-6 md:p-8">
+              <h2 className="font-editorial text-2xl">Marketplace Economics</h2>
+              <div className="mt-6 space-y-4 text-xs">
+                <div className="flex justify-between border-b border-border pb-3">
+                  <span className="text-muted-foreground">Standard Commission</span>
+                  <span className="font-medium">{data.commissionRate ?? 10}%</span>
+                </div>
+                <div className="flex justify-between border-b border-border pb-3">
+                  <span className="text-muted-foreground">Total Artists Represented</span>
+                  <span className="font-medium">{data.totalArtists ?? 0}</span>
+                </div>
+                <div className="flex justify-between border-b border-border pb-3">
+                  <span className="text-muted-foreground">Artworks Catalogued</span>
+                  <span className="font-medium">{data.totalArtworks ?? 0}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Total Platform Revenue</span>
+                  <span className="font-medium">{money(data.totalCommission ?? 0, 'USD')}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="border border-border bg-card p-6 md:p-8">
+              <h2 className="font-editorial text-2xl">Curator Guidelines</h2>
+              <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
+                All submissions must represent original artist-created paintings, drawings, sculpture, or numbered limited editions. Ensure image fidelity, dimensions, and medium details are accurate before publishing.
+              </p>
+              <div className="mt-6">
+                <Link href="/artworks" className="button-outline text-xs">
+                  Review Public Gallery <ArrowUpRight size={13} />
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+    </Shell>
+  );
+}
+
 function ClerkCacheSync() {
   const { addListener } = useClerk();
   const client = useQueryClient();
@@ -761,6 +1100,14 @@ function ClerkCacheSync() {
     if (prev.current !== undefined && prev.current !== userId) client.clear();
     prev.current = userId;
   }), [addListener, client]);
+  return null;
+}
+
+function RedirectTo({ to }: { to: string }) {
+  const [, setLocation] = useLocation();
+  useEffect(() => {
+    setLocation(to);
+  }, [to, setLocation]);
   return null;
 }
 
@@ -780,21 +1127,23 @@ function RouterContent() {
 
       {/* Legacy and Clerk Aliases */}
       <Route path="/sign-in/*?">
-        {() => { useEffect(() => { setLocation('/buyer/login'); }, []); return null; }}
+        {() => <RedirectTo to="/buyer/login" />}
       </Route>
       <Route path="/sign-up/*?">
-        {() => { useEffect(() => { setLocation('/buyer/register'); }, []); return null; }}
+        {() => <RedirectTo to="/buyer/register" />}
       </Route>
 
-      {/* Protected Marketplace Routes (Strictly Require Sign-in) */}
-      <Route path="/" component={() => <ProtectedRoute component={HomePage} />} />
-      <Route path="/artworks" component={() => <ProtectedRoute component={ArtworksPage} />} />
-      <Route path="/artworks/:id" component={() => <ProtectedRoute component={ArtworkDetailPage} />} />
-      <Route path="/artists" component={() => <ProtectedRoute component={ArtistsPage} />} />
-      <Route path="/artist/:slug" component={() => <ProtectedRoute component={ArtistStorePage} />} />
-      <Route path="/account" component={() => <ProtectedRoute component={AccountPage} />} />
-      <Route path="/cart" component={() => <ProtectedRoute component={CartPage} />} />
-      <Route path="/wishlist" component={() => <ProtectedRoute component={WishlistPage} />} />
+      {/* Public Marketplace Browsing Routes (No Login Required) */}
+      <Route path="/" component={HomePage} />
+      <Route path="/artworks" component={ArtworksPage} />
+      <Route path="/artworks/:id" component={ArtworkDetailPage} />
+      <Route path="/artists" component={ArtistsPage} />
+      <Route path="/artist/:slug" component={ArtistStorePage} />
+      <Route path="/cart" component={CartPage} />
+
+      {/* Protected Buyer Routes */}
+      <Route path="/account" component={() => <ProtectedRoute component={AccountPage} requiredRole="buyer" />} />
+      <Route path="/wishlist" component={() => <ProtectedRoute component={WishlistPage} requiredRole="buyer" />} />
       <Route path="/join" component={() => <ProtectedRoute component={JoinPage} />} />
 
       {/* Protected Artist Routes (Requires Artist Role) */}
@@ -803,8 +1152,11 @@ function RouterContent() {
       <Route path="/artist/artworks/new" component={() => <ProtectedRoute component={() => <ArtworkFormPage editing={false} />} requiredRole="artist" />} />
       <Route path="/artist/artworks/:id/edit" component={() => <ProtectedRoute component={() => <ArtworkFormPage editing />} requiredRole="artist" />} />
 
+      {/* Protected Admin Routes (Requires Admin Role) */}
+      <Route path="/admin/dashboard" component={() => <ProtectedRoute component={AdminDashboardPage} requiredRole="admin" />} />
+
       {/* Fallback */}
-      <Route component={() => <ProtectedRoute component={NotFound} />} />
+      <Route component={NotFound} />
     </Switch>
   </ClerkProvider>;
 }

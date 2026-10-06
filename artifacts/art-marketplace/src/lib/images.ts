@@ -2,12 +2,17 @@
  * Normalized artwork image helper.
  * Safely handles:
  * - artwork.imageUrls (array of strings)
- * - artwork.artworkImages (array of objects { url } or strings)
+ * - artwork.artwork_images (array of objects { url } or strings from database schema)
+ * - artwork.artworkImages (camelCase variant)
  * - artwork.images (array of strings or objects)
  * - artwork.imageUrl (single string)
+ * - artwork.image_url (snake_case string)
  * - undefined / null / malformed data
  *
- * Never returns undefined. Never throws.
+ * Guaranteed:
+ * - Always returns a string[] (never undefined, never null)
+ * - Never throws
+ * - Never allows undefined.join(...)
  */
 
 const FALLBACK_ARTWORKS = [
@@ -29,11 +34,20 @@ export function getArtworkImages(artwork?: any): string[] {
   // 1. Array of imageUrls
   if (Array.isArray(artwork.imageUrls) && artwork.imageUrls.length > 0) {
     const cleaned = artwork.imageUrls
+      .map((item: any) => (typeof item === 'string' ? item : item?.url))
       .filter((u: unknown): u is string => typeof u === 'string' && u.trim().length > 0);
     if (cleaned.length > 0) return cleaned;
   }
 
-  // 2. Array of artworkImages ({ url: string } or string)
+  // 2. Array of artwork_images (drizzle schema)
+  if (Array.isArray(artwork.artwork_images) && artwork.artwork_images.length > 0) {
+    const cleaned = artwork.artwork_images
+      .map((item: any) => (typeof item === 'string' ? item : item?.url))
+      .filter((u: unknown): u is string => typeof u === 'string' && u.trim().length > 0);
+    if (cleaned.length > 0) return cleaned;
+  }
+
+  // 3. Array of artworkImages (camelCase)
   if (Array.isArray(artwork.artworkImages) && artwork.artworkImages.length > 0) {
     const cleaned = artwork.artworkImages
       .map((item: any) => (typeof item === 'string' ? item : item?.url))
@@ -41,7 +55,7 @@ export function getArtworkImages(artwork?: any): string[] {
     if (cleaned.length > 0) return cleaned;
   }
 
-  // 3. Array of images
+  // 4. Array of images
   if (Array.isArray(artwork.images) && artwork.images.length > 0) {
     const cleaned = artwork.images
       .map((item: any) => (typeof item === 'string' ? item : item?.url))
@@ -49,9 +63,14 @@ export function getArtworkImages(artwork?: any): string[] {
     if (cleaned.length > 0) return cleaned;
   }
 
-  // 4. Single imageUrl
+  // 5. Single imageUrl
   if (typeof artwork.imageUrl === 'string' && artwork.imageUrl.trim().length > 0) {
     return [artwork.imageUrl.trim()];
+  }
+
+  // 6. Single image_url
+  if (typeof artwork.image_url === 'string' && artwork.image_url.trim().length > 0) {
+    return [artwork.image_url.trim()];
   }
 
   return [];

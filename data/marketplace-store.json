@@ -17,42 +17,6 @@
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00Z",
       "updatedAt": "2025-01-01T00:00:00Z"
-    },
-    {
-      "id": "usr_col_alice",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:16:44.888Z",
-      "updatedAt": "2026-10-06T09:16:44.888Z"
-    },
-    {
-      "id": "usr_col_bob",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:16:44.901Z",
-      "updatedAt": "2026-10-06T09:16:44.901Z"
-    },
-    {
-      "id": "buyer_token_a",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:17:42.814Z",
-      "updatedAt": "2026-10-06T09:17:42.814Z"
-    },
-    {
-      "id": "buyer_token_b",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:17:42.822Z",
-      "updatedAt": "2026-10-06T09:17:42.822Z"
-    },
-    {
-      "id": "usr_col_buyer_a",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:19:05.499Z",
-      "updatedAt": "2026-10-06T09:19:05.499Z"
-    },
-    {
-      "id": "usr_col_buyer_b",
-      "role": "buyer",
-      "createdAt": "2026-10-06T09:19:05.508Z",
-      "updatedAt": "2026-10-06T09:19:05.508Z"
     }
   ],
   "buyerProfiles": [
@@ -78,7 +42,7 @@
       "rating": 4.9,
       "views": 1250,
       "createdAt": "2025-01-10T10:00:00Z",
-      "updatedAt": "2026-10-06T09:16:44.914Z"
+      "updatedAt": "2025-01-10T10:00:00Z"
     },
     {
       "id": 2,
@@ -163,29 +127,6 @@
   ],
   "artworks": [
     {
-      "id": 9,
-      "artistId": 1,
-      "title": "Spring Reverie",
-      "slug": "spring-reverie-5981",
-      "description": "",
-      "price": 450,
-      "currency": "USD",
-      "category": "Painting",
-      "medium": "Oil on linen",
-      "dimensions": "50 × 60 cm",
-      "yearCreated": 2026,
-      "status": "published",
-      "imageUrls": [
-        "/artwork/after-the-rain.jpg"
-      ],
-      "artworkType": "original",
-      "featured": false,
-      "quantity": 1,
-      "views": 3,
-      "createdAt": "2026-10-05T14:11:25.981Z",
-      "updatedAt": "2026-10-05T14:11:25.981Z"
-    },
-    {
       "id": 1,
       "artistId": 1,
       "title": "After the Rain",
@@ -197,14 +138,14 @@
       "medium": "Oil and cold wax on linen",
       "dimensions": "60 × 80 cm",
       "yearCreated": 2025,
-      "status": "sold",
+      "status": "published",
       "imageUrls": [
         "/artwork/after-the-rain.jpg"
       ],
       "artworkType": "original",
       "featured": true,
-      "quantity": 0,
-      "views": 315,
+      "quantity": 1,
+      "views": 310,
       "createdAt": "2025-01-20T10:00:00Z",
       "updatedAt": "2025-01-20T10:00:00Z"
     },
@@ -220,13 +161,13 @@
       "medium": "Acrylic and graphite on canvas",
       "dimensions": "50 × 70 cm",
       "yearCreated": 2025,
-      "status": "sold",
+      "status": "published",
       "imageUrls": [
         "/artwork/blue-hour.jpg"
       ],
       "artworkType": "original",
       "featured": true,
-      "quantity": 0,
+      "quantity": 1,
       "views": 245,
       "createdAt": "2025-01-22T10:00:00Z",
       "updatedAt": "2025-01-22T10:00:00Z"
@@ -273,7 +214,7 @@
       "artworkType": "original",
       "featured": true,
       "quantity": 1,
-      "views": 422,
+      "views": 420,
       "createdAt": "2025-01-24T10:00:00Z",
       "updatedAt": "2025-01-24T10:00:00Z"
     },
@@ -373,20 +314,26 @@
   "cartItems": [
     {
       "id": 1,
-      "userId": "usr_col_alice",
+      "userId": "test_user_xyz",
       "artworkId": 1,
-      "quantity": 2,
-      "createdAt": "2026-10-06T09:16:44.893Z"
+      "quantity": 1,
+      "createdAt": "2026-10-06T09:19:14.686Z"
+    }
+  ],
+  "wishlist": [
+    {
+      "id": 1,
+      "userId": "usr_forma_collector",
+      "artworkId": 1,
+      "createdAt": "2025-02-01T00:00:00Z"
     },
     {
       "id": 2,
-      "userId": "usr_col_buyer_a",
-      "artworkId": 9,
-      "quantity": 1,
-      "createdAt": "2026-10-06T09:19:05.503Z"
+      "userId": "usr_forma_collector",
+      "artworkId": 4,
+      "createdAt": "2025-02-02T00:00:00Z"
     }
   ],
-  "wishlist": [],
   "follows": [
     {
       "id": 1,
@@ -402,54 +349,6 @@
     }
   ],
   "orders": [
-    {
-      "id": 1002,
-      "userId": "usr_forma_collector",
-      "stripeSessionId": "cs_test_1791209503807",
-      "status": "confirmed",
-      "paymentStatus": "paid",
-      "subtotal": 1540,
-      "shipping": 0,
-      "tax": 0,
-      "total": 1540,
-      "currency": "USD",
-      "fullName": "Elena Rostova",
-      "email": "elena@forma.gallery",
-      "address1": "450 West 24th St",
-      "address2": "Apt 8B",
-      "city": "New York",
-      "region": "NY",
-      "postalCode": "10011",
-      "country": "USA",
-      "createdAt": "2026-10-05T14:11:43.808Z",
-      "updatedAt": "2026-10-05T14:11:43.808Z",
-      "items": [
-        {
-          "id": 2,
-          "orderId": 1002,
-          "artworkId": 1,
-          "artistId": 1,
-          "title": "After the Rain",
-          "quantity": 2,
-          "unitPrice": 560,
-          "commissionRate": 12.5,
-          "commissionAmount": 140,
-          "artistAmount": 980
-        },
-        {
-          "id": 3,
-          "orderId": 1002,
-          "artworkId": 2,
-          "artistId": 2,
-          "title": "Blue Hour No. 4",
-          "quantity": 1,
-          "unitPrice": 420,
-          "commissionRate": 12.5,
-          "commissionAmount": 52.5,
-          "artistAmount": 367.5
-        }
-      ]
-    },
     {
       "id": 1001,
       "userId": "usr_forma_collector",
@@ -485,30 +384,6 @@
       "commissionRate": 10,
       "commissionAmount": 56,
       "artistAmount": 504
-    },
-    {
-      "id": 2,
-      "orderId": 1002,
-      "artworkId": 1,
-      "artistId": 1,
-      "title": "After the Rain",
-      "quantity": 2,
-      "unitPrice": 560,
-      "commissionRate": 12.5,
-      "commissionAmount": 140,
-      "artistAmount": 980
-    },
-    {
-      "id": 3,
-      "orderId": 1002,
-      "artworkId": 2,
-      "artistId": 2,
-      "title": "Blue Hour No. 4",
-      "quantity": 1,
-      "unitPrice": 420,
-      "commissionRate": 12.5,
-      "commissionAmount": 52.5,
-      "artistAmount": 367.5
     }
   ],
   "payments": [
@@ -520,15 +395,6 @@
       "status": "succeeded",
       "paymentMethod": "card",
       "createdAt": "2025-02-01T12:01:00Z"
-    },
-    {
-      "id": 2,
-      "orderId": 1002,
-      "amount": 1540,
-      "currency": "USD",
-      "status": "succeeded",
-      "paymentMethod": "card",
-      "createdAt": "2026-10-05T14:11:43.808Z"
     }
   ],
   "payouts": [
@@ -544,36 +410,14 @@
       "notes": "Payout for Order #1001 (After the Rain) less 10% platform commission",
       "createdAt": "2025-02-06T10:00:00Z",
       "updatedAt": "2025-02-07T10:00:00Z"
-    },
-    {
-      "id": 2,
-      "artistId": 1,
-      "orderId": 1002,
-      "amount": 980,
-      "currency": "USD",
-      "status": "pending",
-      "notes": "Earnings from Order #1002 for \"After the Rain\" (87.5% share)",
-      "createdAt": "2026-10-05T14:11:43.808Z",
-      "updatedAt": "2026-10-05T14:11:43.808Z"
-    },
-    {
-      "id": 3,
-      "artistId": 2,
-      "orderId": 1002,
-      "amount": 367.5,
-      "currency": "USD",
-      "status": "pending",
-      "notes": "Earnings from Order #1002 for \"Blue Hour No. 4\" (87.5% share)",
-      "createdAt": "2026-10-05T14:11:43.808Z",
-      "updatedAt": "2026-10-05T14:11:43.808Z"
     }
   ],
   "settings": {
-    "commissionRate": 12.5,
+    "commissionRate": 10,
     "currency": "USD",
     "autoApproveArtworks": false,
     "minPayoutAmount": 50,
-    "updatedAt": "2026-10-05T14:11:37.010Z"
+    "updatedAt": "2025-01-01T00:00:00Z"
   },
   "reviews": [
     {
