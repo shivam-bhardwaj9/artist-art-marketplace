@@ -41,6 +41,10 @@ export default defineConfig(({ command }) => {
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist'),
     emptyOutDir: true,
+    sourcemap: false,
+    minify: 'esbuild',
+    target: 'esnext',
+    chunkSizeWarningLimit: 2500,
   },
   server: {
     port,
